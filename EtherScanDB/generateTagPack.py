@@ -10,7 +10,7 @@ class RawData:
         self.fileName = fileName
         self.url = url
         if not os.path.exists(self.fileName):
-            self.downloadYAML()
+            self.downloadYaml()
 
     def downloadYaml(self):
         res = requests.get(self.url)
