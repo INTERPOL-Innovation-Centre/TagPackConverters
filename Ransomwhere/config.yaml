@@ -1,0 +1,7 @@
+RAW_FILE_NAME:     "ransomwhere_raw.json"
+TAGPACK_FILE_NAME: "ransomwhere_tagpack.yaml"
+URL:               "https://api.ransomwhe.re/export"
+SOURCE:            "https://ransomwhe.re/"
+TITLE:             "Ransomwhere"
+CREATOR:           "Jack Cable" 
+DESCRIPTION:       "Ransomwhere is the open, crowdsourced ransomware payment tracker. Browse and download ransomware payment data or help build our dataset by reporting ransomware demands you have received."
