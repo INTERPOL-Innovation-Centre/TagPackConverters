@@ -1,0 +1,8 @@
+{
+	"source": "https://www.treasury.gov/ofac/downloads/sdnlist.txt",
+	"source_": "http://localhost/sdnlist.txt",
+	"label": "Asset listed under US Treasury OFAC Sanctions List",
+	"title": "US Treasury OFAC Sanctions List",
+	"creator": "INTERPOL CNTL",
+	"category": "User"
+}
