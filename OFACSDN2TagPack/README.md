@@ -1,9 +1,11 @@
-# Install
+# US Treasury OFAC Sanctions List
+
+This codes convert the data provided by US Treasury OFAC Sanctions list to GraphSense TagPacks. 
+
+# Usage
 ```
 pip3 install -r requirements.txt
+python3 generateTagPack.py
 ```
 
-# Download the OFAC SDN list
-```
-python3 Convert.py
-```
+You may find the output named `OFAC.yaml`.
