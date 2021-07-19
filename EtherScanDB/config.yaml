@@ -1,0 +1,8 @@
+RAW_FILE_NAME:     "etherscamdb_raw.yaml"
+TAGPACK_FILE_NAME: "etherscamdb_tagpack.yaml"
+URL:               "https://raw.githubusercontent.com/MrLuit/EtherScamDB/master/_data/scams.yaml"
+SOURCE:            "https://github.com/MrLuit/EtherScamDB"
+TITLE:             "Ethereum Scam Database TagPack"
+CREATOR:           "EtherScanDB Team" 
+DESCRIPTION:       "An open-source database to keep track of all the current ethereum scams"
+LASTMOD:           "2019-07-18"

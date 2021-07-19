@@ -1,0 +1,5 @@
+*.json
+*.yaml
+
+!config.json
+!config.yaml
