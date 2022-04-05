@@ -1,0 +1,7 @@
+RAW_FILE_NAME:     "splc_cryptocurrency_report.csv"
+TAGPACK_FILE_NAME: "splcccr_tagpack.yaml"
+URL:               "https://docs.google.com/spreadsheets/d/e/2PACX-1vQIGW0lif1LZA8JjEC8CSgDDRpHJctKiE-d87tqaiyEmcK-ygQC50ctK49e4I43tzxnv4Ej-w8l-0Y6/pub?output=csv"
+SOURCE:            "https://www.splcenter.org/cryptocurrency-report"
+TITLE:             "SPLC Cryptocurrency Report"
+CREATOR:           "Southern Poverty Law Center"
+DESCRIPTION:       "The extreme far right’s early embrace of cryptocurrencies such as Bitcoin and Monero has allowed them to expand their movement and to obscure funding sources. Hatewatch has compiled an extensive list of cryptocurrency addresses used by extremists to solicit donations and conduct other business. This list below is updated periodically as new donation addresses are located."
