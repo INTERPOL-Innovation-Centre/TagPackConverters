@@ -2,8 +2,18 @@
 # -*- coding:utf-8 -*- 
 
 import os
+import re
 import yaml
 import requests
+
+# Taken from OFAC Specially Designated Nationals generator and modified
+REGEX = [
+    ('BTC', re.compile(r'\b((bc(0([ac-hj-np-z02-9]{39}|[ac-hj-np-z02-9]{59})|1[ac-hj-np-z02-9]{8,87}))|[13][a-km-zA-HJ-NP-Z1-9]{25,34})\b')),
+    ('BCH', re.compile(r'\b(((?:bitcoincash|bchtest):)?([13][0-9a-zA-Z]{33}))|(((?:bitcoincash|bchtest):)?(qp)?[0-9a-zA-Z]{40})\b')),
+    ('LTC', re.compile(r'\b([LM3][a-km-zA-HJ-NP-Z1-9]{25,33})\b')),
+    ('ZEC', re.compile(r'\b([tz][13][a-km-zA-HJ-NP-Z1-9]{33})\b')),
+    ('ETH', re.compile(r'\b((0x)?[0-9a-fA-F]{40})\b'))
+]
 
 class RawData:
     def __init__(self, fileName, url):
@@ -67,6 +77,13 @@ class TagPackGenerator:
             if invalid:
                 continue
             for address in datum["addresses"]:
+                for coin, address_format in REGEX:
+                    if address_format.fullmatch(address):
+                        datum["coin"] = coin
+                        break
+                else:
+                    print('Unknown address format: ' + address)
+                    continue
                 tag = Tag(address,
                           datum["coin"],
                           datum["name"],
