@@ -8,7 +8,6 @@ This codes convert the data publicised at [Ransomwhere](https://ransomwhe.re/) t
 
 # Usage
 ```
-pip3 install -r requirements.txt
 python3 generateTagPack.py
 ```
 
