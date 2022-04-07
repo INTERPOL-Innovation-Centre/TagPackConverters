@@ -18,17 +18,6 @@ Other addresses or adddresses not complying with our controls will not be added 
 
 This Python script may be tweaked to scrape other pages, currently it is written to search for the string *Digital Currency Address* and extract the address and the Cryptocurrency code found immediately after that string.
 
-## Prerequisit
-
-Works with Python3.  
-Requires Python tools: regex (re), PyYAML (yaml), requests (requests).  
-Python tools datetime and json should already be installed.  
-
-These are typically installed with [pip](https://pip.pypa.io/en/stable/)  
-```
-pip3 install -r requirements.txt
-```
-
 ## Authors
 Shun Inagaki
 [github/skynde](https://github.com/skynde)  
