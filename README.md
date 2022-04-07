@@ -7,4 +7,16 @@ This repository contains codes to convert public information regarding tagged vi
 
 Please refer to the READMEs in each folder to use the converters. 
 
-*This repository only contains the code, not the police data. Please do not store your TagPack(s) in this repository.*
+## Prerequisit - for all of the converters in the sub-folders
+
+Works with Python3.  
+Requires Python tools: *regex* (re), *PyYAML* (yaml), and *requests* (requests).  
+Python tools *datetime* and *json* should already be installed.  
+
+These are typically installed with [pip](https://pip.pypa.io/en/stable/)  
+```
+pip3 install -r requirements.txt
+```
+## Disclaimer
+*This repository only contains the code, not the police data. Please do not store your TagPack(s) in this repository.*  
+*Please let us know by opening an [Issue](https://github.com/INTERPOL-Innovation-Centre/TagPackConverters/issues) if you want to suggest a new feature or data source or find a bug.*
