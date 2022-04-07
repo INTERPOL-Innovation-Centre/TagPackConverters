@@ -4,7 +4,6 @@ This code converts the data provided by the [CSPLC](https://www.splcenter.org/cr
 
 # Usage
 ```
-pip3 install -r requirements.txt
 python3 generateTagPack.py
 ```
 
