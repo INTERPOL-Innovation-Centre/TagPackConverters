@@ -7,7 +7,6 @@ While this data contains reporters of each address tagged, please kindly note th
 
 # Usage
 ```
-pip3 install -r requirements.txt
 python3 generateTagPack.py
 ```
 
