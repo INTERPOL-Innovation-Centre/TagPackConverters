@@ -1,0 +1,7 @@
+RAW_FILE_NAME:     "seekoin.jsonl"
+TAGPACK_FILE_NAME: "seekoin_tagpack.yaml"
+URL:               "https://seekoin.com/address.php"
+SOURCE:            "https://seekoin.com/"
+TITLE:             "SeeKoin, a Bitcoin search engine"
+CREATOR:           "An old timer fascinated by a currency that can't be controlled by the government. Simply call me Warren."
+DESCRIPTION:       "SeeKoin is a search engine that is focused only on Bitcoin."
