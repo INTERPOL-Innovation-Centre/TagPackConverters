@@ -75,7 +75,7 @@ class TagPackGenerator:
                 'address': row['address'],
                 'currency': 'BTC',
                 'label': '{type} (comment: "{comment}…")'.format(type=row['type'], comment=row['comment']),
-                'source': self.source,
+                'source': 'https://seekoin.com/addr-{address}'.format(address=row['address']),
                 'category': 'User',
                 'confidence': 'web_crawl'
             }
