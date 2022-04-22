@@ -1,0 +1,7 @@
+RAW_FILE_NAME:     "bitcoin-otc.json"
+TAGPACK_FILE_NAME: "bitcoin-otc_tagpack.yaml"
+URL:               "https://bitcoin-otc.com/viewgpg.php?outformat=json"
+SOURCE:            "https://bitcoin-otc.com/viewgpg.php"
+TITLE:             "#bitcoin-otc gpg key data"
+CREATOR:           "bitcoin-otc.com"
+DESCRIPTION:       "#bitcoin-otc is an over-the-counter marketplace for trading with bitcoin, located in #bitcoin-otc channel on the Libera Chat IRC network. It offers a web of trust service, which provides participant's reputation and trade history."
