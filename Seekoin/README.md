@@ -1,6 +1,6 @@
 # Convert SeeKoin data
 
-This code converts the data provided by the [SeeKoin (a Bitcoin search engine)](https://seekoin.com/) to GraphSense TagPacks.  
+This code converts the data provided by the [SeeKoin (a Bitcoin search engine)](https://seekoin.com/address.php) to GraphSense TagPacks.  
 
 # Usage
 ```
