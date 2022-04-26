@@ -47,11 +47,11 @@ class RawData:
                 next_page_link.click()
             except NoSuchElementException:
                 break
-        print('Collected {len} addresses'.format(len=len(report_urls)))
+        #print('Collected {len} addresses'.format(len=len(report_urls)))
         # Collect reports and write them into the raw data file
         with open(self.fn, 'w', encoding='utf-8') as jsonlines_file:
             for report_index, report_url in enumerate(report_urls, 1):
-                print('Fetching {url} [{index}/{count}]'.format(url=report_url, index=report_index, count=len(report_urls)))
+                #print('Fetching {url} [{index}/{count}]'.format(url=report_url, index=report_index, count=len(report_urls)))
                 for _ in range(5):
                     try:
                         wd.get(report_url)
