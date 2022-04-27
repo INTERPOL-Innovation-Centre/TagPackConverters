@@ -108,7 +108,8 @@ class TagPackGenerator:
                 'currency': 'BTC',
                 'label': label,
                 'source': 'https://www.bitcoinabuse.com/reports/{address}'.format(address=row['address']),
-                'category': 'User'  # like in the OFAC TagPack generator
+                'category': 'User',  # like in the OFAC TagPack generator
+                'confidence': 'web_crawl'
             }
             tags.append(tag)
         self.data['tags'] = tags
