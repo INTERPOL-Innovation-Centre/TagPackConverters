@@ -79,5 +79,5 @@ class Convert():
 if __name__ == "__main__":
     out = Convert.add_tags()
     #print(yaml.dump(out, sort_keys=False))
-    with open("OFAC.yaml", "w") as fout:
+    with open("OFAC_tagpack.yaml", "w") as fout:
         yaml.dump(out, fout, sort_keys=False)
