@@ -1,0 +1,7 @@
+RAW_FILE_NAME:     "bitcoinabuse.jsonl"
+TAGPACK_FILE_NAME: "bitcoinabuse_tagpack.yaml"
+URL:               "https://www.bitcoinabuse.com/reports"
+SOURCE:            "https://www.bitcoinabuse.com/"
+TITLE:             "Bitcoin Abuse Database"
+CREATOR:           "The BitcoinAbuse Team (https://github.com/aarreedd/bitcoinabuse.com)"
+DESCRIPTION:       "BitcoinAbuse.com is a public database of bitcoin addresses used by hackers and criminals."
