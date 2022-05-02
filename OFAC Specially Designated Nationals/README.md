@@ -47,4 +47,4 @@ This address was skipped (invalid address?) 0xa7e5d5a720f06526557c513402f2e6b5fa
 This address was skipped (currency not supported yet): DFFJhnQNZf8rf67tYnesPu7MuGUpYtzv7Z (XVG)
 Processed  95 tags with  5  addresses skipped because they failed our controls.
 ```
-And of course an OFAC.yaml file which is the TagPack itself.
+And of course an OFAC_tagpack.yaml file which is the TagPack itself.
