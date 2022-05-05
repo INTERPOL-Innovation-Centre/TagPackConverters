@@ -101,7 +101,7 @@ class RawData:
         else:
             if avatar_text:
                 data['avatar_text'] = avatar_text
-        print(data)
+        #print(data)
         return data
 
     def download_profiles(self, out_file: TextIO, wd: webdriver.Remote, starting_user_id: int):
@@ -205,8 +205,8 @@ class TagPackGenerator:
                         address = match.group(0)
                         if address not in user_addresses:
                             user_addresses[address] = currency
-            if user_addresses:
-                print(row['user_id'], user_addresses)
+            #if user_addresses:
+            #    print(row['user_id'], user_addresses)
             for address, currency in user_addresses.items():
                 tag = {
                     'address': address,
