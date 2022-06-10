@@ -1,0 +1,7 @@
+RAW_FILE_NAME:     "bitcointalk_users.jsonl"
+TAGPACK_FILE_NAME: "bitcointalk_users_tagpack.yaml"
+URL:               "https://bitcointalk.org/"
+SOURCE:            "https://bitcointalk.org/"
+TITLE:             "BitcoinTalk forum user profiles"
+CREATOR:           "Bitcointalk forum users"
+DESCRIPTION:       "Bitcointalk is a public forum where blockchain enthusiasts, developers, and crypto investors discuss topics about Bitcoin, cryptocurrencies, and blockchain in general."
