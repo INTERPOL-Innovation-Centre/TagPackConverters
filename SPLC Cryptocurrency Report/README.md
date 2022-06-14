@@ -1,6 +1,6 @@
 # Convert Southern Poverty Law Center Cryptocurrency Report
 
-This code converts the data provided by the [CSPLC](https://www.splcenter.org/cryptocurrency-report) to GraphSense TagPacks.  
+This code converts the data provided by the [CSPLC](https://www.splcenter.org/cryptocurrency-report) to GraphSense TagPacks.
 
 # Usage
 ```
