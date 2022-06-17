@@ -1,4 +1,6 @@
 *.json
+*.jsonl
+*.csv
 *.yaml
 
 !config.json
