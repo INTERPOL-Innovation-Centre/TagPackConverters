@@ -9,7 +9,6 @@ from urllib.parse import urlencode, unquote
 from urllib.request import urlretrieve, urlopen
 from datetime import datetime
 from typing import List
-from time import sleep
 
 import yaml
 

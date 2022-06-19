@@ -6,7 +6,6 @@ Convert Seizures of Cryptocurrency list by National Bureau for Counter Terror Fi
 import os
 import re
 import csv
-import time
 from datetime import datetime
 from typing import List
 
