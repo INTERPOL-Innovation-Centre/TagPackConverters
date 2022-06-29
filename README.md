@@ -18,6 +18,6 @@ These are typically installed with [pip](https://pip.pypa.io/en/stable/)
 pip3 install -r requirements.txt
 ```
 ## Disclaimer
-*Prior to working on this repository and its contents, please make sure your agree to our [disclaimer](https://github.com/INTERPOL-Innovation-Centre/DISCLAIMER)*
+*Prior to working on this repository and its contents, please make sure your agree to our [disclaimer](https://github.com/INTERPOL-Innovation-Centre/DISCLAIMER)*  
 *This repository only contains the code, not the police data. Please do not store your TagPack(s) in this repository.*  
 *Please let us know by opening an [Issue](https://github.com/INTERPOL-Innovation-Centre/TagPackConverters/issues) if you want to suggest a new feature or data source or find a bug.*
