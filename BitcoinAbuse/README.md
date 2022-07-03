@@ -10,7 +10,7 @@ python3 generateTagPack.py
 You may find the output named `bitcoinabuse_tagpack.yaml`.
 
 # Requirements
-This converter uses selenium to control a Firefox browser and grab pages.
+This converter uses selenium to control a Firefox browser and grab pages.  
 On MacOSX machines this will require geckodriver:
 ```
 brew install geckodriver
