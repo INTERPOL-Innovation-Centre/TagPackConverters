@@ -179,7 +179,7 @@ class RawData:
 
 class TagPackGenerator:
     """
-    Generate a TagPack from BitcoinAbuse data.
+    Generate a TagPack from BitcoinTalk users data.
     """
 
     def __init__(self, rows: List[dict], title: str, creator: str, description: str, lastmod: str, source: str):
