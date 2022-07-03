@@ -1,0 +1,7 @@
+RAW_FILE_NAME:     "scamsearch.jsonl"
+TAGPACK_FILE_NAME: "scamsearch_tagpack.yaml"
+URL:               "https://scamsearch.io/view_report"
+SOURCE:            "https://scamsearch.io/"
+TITLE:             "ScamSearch Global Scam Database"
+CREATOR:           "scamsearch.io"
+DESCRIPTION:       "ScamSearch is a free, public database of scam reports, created by the public."
