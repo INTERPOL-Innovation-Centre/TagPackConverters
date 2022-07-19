@@ -19,6 +19,7 @@ REGEX = [
     ('ZEC', re.compile(r'\b([tz][13][a-km-zA-HJ-NP-Z1-9]{33})\b')),
     ('ETH', re.compile(r'\b((0x)?[0-9a-fA-F]{40})\b'))
 ]
+NO_BTC_INTERVAL = 100
 
 
 class RawData:
@@ -52,13 +53,18 @@ class RawData:
                 else:
                     return None, None
 
+            page_index = last_page_with_btc_index = 1
             while True:
                 address_links = wd.find_elements(By.CSS_SELECTOR, 'button.looklink')
                 index, currency = find_unscraped_address_index([link.text for link in address_links])
                 if index is None:
+                    if page_index - last_page_with_btc_index > NO_BTC_INTERVAL:
+                        break
                     next_page_link = wd.find_element(By.XPATH, '//li[@class="uk-active"]/following-sibling::li[1]/a')
                     next_page_link.click()
+                    page_index += 1
                 else:
+                    last_page_with_btc_index = page_index
                     address = address_links[index].text
                     address_links[index].click()
                     report_count = wd.find_element(By.XPATH, '//td[text()="Report Count"]/following-sibling::td').text
@@ -72,10 +78,7 @@ class RawData:
                     }
                     print(json.dumps(data, ensure_ascii=False), file=jsonlines_file)
                     scraped_addresses.add(address)
-                    if address != '35Nbao1JXGiGV4rNt2aoxyWKk61rCrAbiK':
-                        wd.back()
-                    else:
-                        break
+                    wd.back()
         wd.quit()
 
     def read(self) -> List[dict]:
