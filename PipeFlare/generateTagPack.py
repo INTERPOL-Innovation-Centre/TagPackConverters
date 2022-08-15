@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Convert ScamSearch data to a TagPack.
+Convert PipeFlare data to a TagPack.
 """
 import os
 import re
@@ -16,8 +16,9 @@ from selenium.webdriver.support import expected_conditions as EC
 
 ZEC_REGEX = re.compile(r'\b([tz][13][a-km-zA-HJ-NP-Z1-9]{33})\b')
 ZEC_EXPLORER_URL = 'https://explorer.zcha.in/transactions/'
-LEADERBOARD_URL = 'https://pipeflare.io/game/leaderboard'
-LEADERBOARD_INTERVAL = 20
+GAME_LEADERBOARD_URL = 'https://pipeflare.io/game/leaderboard'
+REFERRAL_LEADERBOARD_URL = 'https://pipeflare.io/referral/leaderboard'
+LEADERBOARD_INTERVAL = 40
 
 
 class DatetimeEncoder(json.JSONEncoder):
@@ -50,12 +51,12 @@ class RawData:
         wd.get(self.url)
         self.add_tx_links(wd)
 
-    def download_leaderboard(self, wd: webdriver.Remote):
-        wd.get(LEADERBOARD_URL)
+    def download_leaderboard(self, wd: webdriver.Remote, start_url: str, next_page_link_xpath: str):
+        wd.get(start_url)
         self.add_tx_links(wd)
         page_index = last_page_with_new_zec_index = 1
         while True:
-            next_page_link = wd.find_element(By.XPATH, '//i[contains(@class, "fa-angle-left")]/parent::a')
+            next_page_link = wd.find_element(By.XPATH, next_page_link_xpath)
             if next_page_link:
                 next_page_link.click()
                 page_index += 1
@@ -66,6 +67,13 @@ class RawData:
                 last_page_with_new_zec_index += 1
             if page_index - last_page_with_new_zec_index > LEADERBOARD_INTERVAL:
                 break
+
+    def download_game_leaderboard(self, wd: webdriver.Remote):
+        self.download_leaderboard(wd, GAME_LEADERBOARD_URL, '//i[contains(@class, "fa-angle-left")]/parent::a')
+
+    def download_referral_leaderboard(self, wd: webdriver.Remote):
+        self.download_leaderboard(wd, REFERRAL_LEADERBOARD_URL,
+                                  '//*[@id="wrap-leader-board"]/div/a[contains(@class, "btn-primary")][last()]')
 
     def get_addresses_from_tx_links(self, wd: webdriver.Remote):
         for link, source in self.explorer_tx_links.items():
@@ -90,8 +98,10 @@ class RawData:
         options.set_preference('permissions.default.image', 2)
         wd = webdriver.Firefox(options=options)
         self.download_transactions(wd)
-        self.download_leaderboard(wd)
-        del self.explorer_tx_links[ZEC_EXPLORER_URL]  # Drop link(s) to the ZEC explorer itself
+        self.download_game_leaderboard(wd)
+        self.download_referral_leaderboard(wd)
+        if ZEC_EXPLORER_URL in self.explorer_tx_links:
+            del self.explorer_tx_links[ZEC_EXPLORER_URL]  # Drop link(s) to the ZEC explorer itself
         wd.quit()
         wd = webdriver.Firefox()
         self.get_addresses_from_tx_links(wd)
