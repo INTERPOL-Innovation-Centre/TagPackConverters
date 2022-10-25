@@ -106,12 +106,12 @@ class RawData:
         wd = webdriver.Firefox()
         self.get_addresses_from_tx_links(wd)
         wd.quit()
-        with open(self.fn, 'w', encoding='utf-8') as jsonlines_file:
-            json.dump(self.addresses, jsonlines_file, cls=DatetimeEncoder, indent=4)
+        with open(self.fn, 'w', encoding='utf-8') as json_file:
+            json.dump(self.addresses, json_file, cls=DatetimeEncoder, indent=4)
 
     def read(self) -> dict:
-        with open(self.fn, 'r', encoding='utf-8') as jsonlines_file:
-            return json.load(jsonlines_file)
+        with open(self.fn, 'r', encoding='utf-8') as json_file:
+            return json.load(json_file)
 
 
 class TagPackGenerator:
