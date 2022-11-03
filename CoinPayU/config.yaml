@@ -1,0 +1,7 @@
+RAW_FILE_NAME:     "coinpayu.json"
+TAGPACK_FILE_NAME: "coinpayu_tagpack.yaml"
+URL:               "https://www.coinpayu.com"
+SOURCE:            "https://www.coinpayu.com/payment"
+TITLE:             "Coinpayu - Earn crypto by viewing advertisements"
+CREATOR:           "Coinpayu"
+DESCRIPTION:       "Coinpayu is a free rewards platform where you can earn bitcoin by viewing advertisements or doing offers."
