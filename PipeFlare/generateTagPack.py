@@ -138,7 +138,7 @@ class TagPackGenerator:
                 'currency': 'ZEC',
                 'label': 'TX on {date}'.format(date=row['date']),
                 'source': row['source'],
-                'category': 'User',
+                'category': 'faucet',
                 'confidence': 'web_crawl'
             }
             tags.append(tag)
