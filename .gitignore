@@ -6,5 +6,5 @@
 !config.json
 !config.yaml
 .DS_Store
-
+geckodriver.log
 .idea/
