@@ -7,4 +7,4 @@
 !config.yaml
 .DS_Store
 geckodriver.log
-s
+.idea/
