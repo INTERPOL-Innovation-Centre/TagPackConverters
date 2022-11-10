@@ -1,6 +1,9 @@
 RAW_FILE_NAME:     "pipeflare.json"
 TAGPACK_FILE_NAME: "pipeflare_tagpack.yaml"
-URL:               "https://pipeflare.io/transactions"
+URL:
+- https://pipeflare.io/transactions
+- https://pipeflare.io/game/leaderboard
+- https://pipeflare.io/referral/leaderboard
 SOURCE:            "https://pipeflare.io/"
 TITLE:             "PipeFlare - Play Crypto Games and Earn Crypto Coins"
 CREATOR:           "pipeflare.io"
