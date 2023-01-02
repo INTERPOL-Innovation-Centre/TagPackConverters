@@ -1,3 +1,10 @@
+# What is this?
+Each of the above folder is a source of verifyable information linking a cryptocurrency wallet to an entity.
+These sources are public sanctions lists as well as other publicly advertised lists published by service providers.
+
+These lists help investigators make links between addresses and entities but absolutely need to be verified prior to prosecution.
+Each of the folder contains the necessary scripts to scrape the contents and build datasets that may be used to automate these purposes.
+
 # TagPackGenerators
 
 In investigating Cryptocurrencies and Virtual Assets, **attribution is key**.
