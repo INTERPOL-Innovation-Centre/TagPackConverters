@@ -136,7 +136,8 @@ class TagPackGenerator:
             tag = {
                 'address': row['address'],
                 'currency': 'ZEC',
-                'label': 'TX on {date}'.format(date=row['date']),
+                'label': 'PipeFlare',
+                'lastmod': row['date'],
                 'source': row['source'],
                 'category': 'faucet',
                 'confidence': 'web_crawl'
