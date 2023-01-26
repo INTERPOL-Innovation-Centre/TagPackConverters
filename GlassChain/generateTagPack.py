@@ -211,7 +211,7 @@ class TagPackGenerator:
 
 
 if __name__ == '__main__':
-    logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.DEBUG)
+    logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.WARNING)
 
     with open('config.yaml', 'r') as config_file:
         config = yaml.safe_load(config_file)
