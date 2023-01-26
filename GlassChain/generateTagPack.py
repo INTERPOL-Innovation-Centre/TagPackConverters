@@ -197,6 +197,7 @@ class TagPackGenerator:
                 for address in wallet['addresses']:
                     tags.append({
                         'address': address,
+                        'is_cluster_definer': True,
                         'label': label,
                         'lastmod': last_mod.date(),
                         'source': urljoin('https://glasschain.org/', wallet['source']),
