@@ -1,0 +1,7 @@
+RAW_FILE_NAME:     "glasschain.json"
+TAGPACK_FILE_NAME: "glasschain_tagpack.yaml"
+URL:               "https://glasschain.org/providers"
+SOURCE:            "https://glasschain.org/"
+TITLE:             "Glasschain.org"
+CREATOR:           "Glasschain AG (Switzerland)"
+DESCRIPTION:       "Glasschain.org is a non-profit foundation in Switzerland with the goal to reduce fraud within the Bitcoin network."
