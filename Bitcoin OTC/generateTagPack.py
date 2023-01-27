@@ -7,7 +7,7 @@ import os
 from urllib.error import HTTPError
 from urllib.parse import urlencode, unquote
 from urllib.request import urlretrieve, urlopen
-from datetime import datetime
+from datetime import datetime, date
 from typing import List
 
 import yaml
@@ -38,16 +38,18 @@ class TagPackGenerator:
     Generate a TagPack from #bitcoin-otc web of trust data.
     """
 
-    def __init__(self, rows: List[dict], title: str, creator: str, description: str, lastmod: str, source: str):
+    def __init__(self, rows: List[dict], title: str, creator: str, description: str, lastmod: date, source: str):
         self.rows = rows
         self.data = {
             'title': title,
             'creator': creator,
             'description': description,
+            'source': source,
             'lastmod': lastmod,
+            'currency': 'BTC',
+            'category': 'user',
             'tags': []
         }
-        self.source = source
 
     def generate(self):
         tags = []
@@ -55,17 +57,12 @@ class TagPackGenerator:
         for row in self.rows:
             if row['bitcoinaddress'] is None:
                 continue  # There is no value for a tag without BTC address
-            tag = {
-                'address': row['bitcoinaddress'],
-                'currency': 'BTC',
-                'source': self.source,
-                'category': 'User'
-            }
+            tag = {'address': row['bitcoinaddress']}
             label = ['Libera IRC #bitcoin-otc nick: {nick}'.format(nick=row['nick'])]
             keyid = row['keyid']
             if keyid is not None:
                 label += ['OpenPGP key id: {keyid}'.format(keyid=keyid)]
-                params = urlencode({'search': '0x{keyid}'.format(keyid=row['keyid']), 'options': 'mr'})
+                params = urlencode({'search': '0x{id}'.format(id=row['keyid']), 'fingerprint': 'on', 'op': 'index'})
                 url = '{lookup_url}?{params}'.format(lookup_url=SKS_LOOKUP_URL, params=params)
                 try:
                     with urlopen(url) as req:
@@ -90,7 +87,7 @@ if __name__ == '__main__':
     if not os.path.exists(config['RAW_FILE_NAME']):
         raw_data.download()
 
-    last_mod = datetime.fromtimestamp(os.path.getmtime(config['RAW_FILE_NAME'])).isoformat()
+    last_mod = datetime.fromtimestamp(os.path.getmtime(config['RAW_FILE_NAME'])).date()
     generator = TagPackGenerator(raw_data.read(), config['TITLE'], config['CREATOR'], config['DESCRIPTION'],
                                  last_mod, config['SOURCE'])
     generator.generate()
