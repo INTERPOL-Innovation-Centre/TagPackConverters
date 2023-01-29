@@ -7,7 +7,7 @@ import re
 import sys
 import json
 import time
-from datetime import datetime
+from datetime import datetime, date
 from typing import List, Union, TextIO
 
 import yaml
@@ -182,13 +182,14 @@ class TagPackGenerator:
     Generate a TagPack from BitcoinTalk users data.
     """
 
-    def __init__(self, rows: List[dict], title: str, creator: str, description: str, lastmod: str, source: str):
+    def __init__(self, rows: List[dict], title: str, creator: str, description: str, lastmod: date, source: str):
         self.rows = rows
         self.data = {
             'title': title,
             'creator': creator,
             'description': description,
             'lastmod': lastmod,
+            'category': 'user',  # like in the OFAC TagPack generator
             'tags': []
         }
         self.source = source
@@ -212,8 +213,7 @@ class TagPackGenerator:
                     'address': address,
                     'currency': currency,
                     'label': 'User {name} at BitcoinTalk forum'.format(name=row['name']),
-                    'source': BITCOINTALK_PROFILE_URL.format(user_id=row['user_id']),
-                    'category': 'User'  # like in the OFAC TagPack generator
+                    'source': BITCOINTALK_PROFILE_URL.format(user_id=row['user_id'])
                 }
                 tags.append(tag)
         self.data['tags'] = tags
@@ -232,7 +232,7 @@ if __name__ == '__main__':
     if not os.path.exists(config['RAW_FILE_NAME']) or update_raw_data:
         raw_data.download(update_raw_data)
 
-    last_mod = datetime.fromtimestamp(os.path.getmtime(config['RAW_FILE_NAME'])).isoformat()
+    last_mod = datetime.fromtimestamp(os.path.getmtime(config['RAW_FILE_NAME'])).date()
     generator = TagPackGenerator(raw_data.read(), config['TITLE'], config['CREATOR'], config['DESCRIPTION'],
                                  last_mod, config['SOURCE'])
     generator.generate()
