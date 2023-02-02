@@ -15,6 +15,7 @@ REGEX = [
     ('ETH', re.compile(r'\b((0x)?[0-9a-fA-F]{40})\b'))
 ]
 
+
 class RawData:
     def __init__(self, fileName, url):
         self.fileName = fileName
@@ -32,6 +33,7 @@ class RawData:
             yamlData = yaml.safe_load(fin.read())
         return yamlData
 
+
 class Tag:
     def __init__(self, address, currency, label, source, category):
         self.data = {}
@@ -45,6 +47,7 @@ class Tag:
 
     def getTagData(self):
         return self.data
+
 
 class TagPack:
     def __init__(self, title, creator, description, lastmod):
@@ -60,6 +63,7 @@ class TagPack:
 
     def dumpYaml(self):
         return yaml.dump(self.data, sort_keys=False)
+
 
 class TagPackGenerator:
     def __init__(self, rawYaml, title, creator, description, lastmod):
@@ -94,6 +98,7 @@ class TagPackGenerator:
     def saveYaml(self, fileName):
         with open(fileName, "w") as fout:
             fout.write(self.tagPack.dumpYaml())
+
 
 if __name__ == "__main__":
     with open("config.yaml", "r") as fin:
