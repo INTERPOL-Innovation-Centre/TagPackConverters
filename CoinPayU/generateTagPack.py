@@ -82,7 +82,7 @@ def get_btc_com_data(driver: webdriver.Remote) -> dict:
         try:
             link = WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.XPATH, '//a[text()="BLOCKCHAIR"]')))
             driver.get(link.get_attribute('href'))
-        except TimeoutException:
+        except (TimeoutException, WebDriverException):
             logging.warning('Timeout. Retrying...')
             driver.refresh()
             continue
