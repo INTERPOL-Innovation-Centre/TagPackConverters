@@ -61,7 +61,7 @@ class TagPackGenerator:
         for row in self.rows:
             for column in ['Bitcoin Addresses', 'Ethereum Addresses', 'Litecoin Addresses', 'Monero Address']:
                 for address in row[column].split('\n'):
-                    if not address:
+                    if not address or address == 'uses':
                         continue
                     tag = {
                         'address': address.strip(),
