@@ -198,7 +198,7 @@ class RawData:
                 for address in tx_data['addresses']:
                     if address not in data:
                         data[address] = {'date': tx_data['date'], 'currency': currency}
-                    elif data[address]['currency'] == currency and data[address]['date'] > tx_data['date']:
+                    elif data[address]['currency'] == currency and data[address]['date'] < tx_data['date']:
                         data[address]['date'] = tx_data['date']
         wd.quit()
         with open(self.fn, 'w', encoding='utf-8') as json_file:
