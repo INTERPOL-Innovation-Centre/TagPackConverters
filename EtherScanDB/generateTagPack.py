@@ -36,14 +36,8 @@ class RawData:
 
 class Tag:
     def __init__(self, address, currency, label, source, category):
-        self.data = {}
-        self.data["address"]  = address
-        self.data["currency"] = currency
-        self.data["label"]    = label
-        self.data["source"]   = source
-        if self.data["source"] == "MyCrypto":
-            self.data["source"] = "https://cryptoscamdb.org/"
-        self.data["category"] = category
+        self.data = {"address": address, "currency": currency, "label": label,
+                     "source": "https://cryptoscamdb.org/" if source == "MyCrypto" else source, "category": category}
 
     def getTagData(self):
         return self.data
