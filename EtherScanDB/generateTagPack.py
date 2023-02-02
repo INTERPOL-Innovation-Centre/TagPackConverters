@@ -36,8 +36,16 @@ class RawData:
 
 class Tag:
     def __init__(self, address, currency, label, source, category):
+        category_and_abuse_map = {
+            "Phishing": {"category": "perpetrator", "abuse": "phishing"},
+            "Fake ICO": {"category": "perpetrator", "abuse": "investment_fraud"},
+            "Scamming": {"category": "perpetrator", "abuse": "scam"},
+            "Scam": {"category": "perpetrator", "abuse": "scam"}
+        }
         self.data = {"address": address, "currency": currency, "label": label,
-                     "source": "https://cryptoscamdb.org/" if source == "MyCrypto" else source, "category": category}
+                     "source": "https://cryptoscamdb.org/" if source == "MyCrypto" else source,
+                     "category": category_and_abuse_map[category]["category"],
+                     "abuse": category_and_abuse_map[category]["abuse"]}
 
     def getTagData(self):
         return self.data
