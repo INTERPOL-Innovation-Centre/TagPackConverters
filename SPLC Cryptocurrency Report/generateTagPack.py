@@ -49,6 +49,9 @@ class TagPackGenerator:
             'creator': creator,
             'description': description,
             'lastmod': lastmod,
+            'abuse': 'extremism',
+            'category': 'user',  # like in the OFAC TagPack generator
+            'source': source,
             'tags': []
         }
         self.source = source
@@ -61,11 +64,9 @@ class TagPackGenerator:
                     if not address:
                         continue
                     tag = {
-                        'address': address,
+                        'address': address.strip(),
                         'currency': CURRENCY[column],
-                        'label': row['Entity'],
-                        'source': self.source,
-                        'category': 'User'  # like in the OFAC TagPack generator
+                        'label': row['Entity']
                     }
                     tags.append(tag)
         self.data['tags'] = tags
