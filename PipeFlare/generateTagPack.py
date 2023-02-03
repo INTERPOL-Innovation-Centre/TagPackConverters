@@ -190,6 +190,10 @@ class TagPackGenerator:
             'creator': creator,
             'description': description,
             'lastmod': lastmod,
+            'currency': 'ZEC',
+            'label': 'PipeFlare',
+            'category': 'faucet',
+            'confidence': 'web_crawl',
             'tags': []
         }
         self.source = source
@@ -199,12 +203,8 @@ class TagPackGenerator:
         for row in self.rows:
             tag = {
                 'address': row['address'],
-                'currency': 'ZEC',
-                'label': 'PipeFlare',
-                'lastmod': row['date'],
-                'source': row['source'],
-                'category': 'faucet',
-                'confidence': 'web_crawl'
+                'lastmod': datetime.fromisoformat(row['date']).date(),
+                'source': row['source']
             }
             tags.append(tag)
         self.data['tags'] = tags
