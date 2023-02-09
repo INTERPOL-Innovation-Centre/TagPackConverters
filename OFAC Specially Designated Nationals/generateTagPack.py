@@ -21,8 +21,8 @@ class Convert():
         return config
 
     @staticmethod
-    def add_tag(address, label, currency, category):
-        tag = {"address": address, "label": label, "currency": currency, "category": category}
+    def add_tag(address, currency):
+        tag = {"address": address, "currency": currency}
         return tag
 
     @staticmethod
@@ -35,7 +35,7 @@ class Convert():
             print("Is this a valid address?: %s (%s)" % (address, assetCode))
 
     @staticmethod
-    def add_details(raw_data, label, category):
+    def add_details(raw_data):
         tags = []
         lines = raw_data.replace("\n", " ").split(";")
         for line in lines:
@@ -53,7 +53,7 @@ class Convert():
                     if assetCode == alias:
                         assetCode = ALIASES[assetCode]
                 Convert.checkValidAddress(assetCode, address)
-                tags += [Convert.add_tag(address, label, assetCode, category)]
+                tags += [Convert.add_tag(address, assetCode)]
         return tags
 
     @staticmethod
@@ -67,11 +67,13 @@ class Convert():
                 "title": config["title"],
                 "description": "Tagpack automatically created with the INTERPOL CNTL scraping tool",
                 "lastmod": timestamp.date(),
+                "label": config["label"],
+                "category": config["category"],
                 "source": config["source"]}
         try:
            with requests.get(config["source"]) as source:
                raw_data = source.text
-               tags = Convert.add_details(raw_data, config["label"], config["category"])
+               tags = Convert.add_details(raw_data)
         except requests.exceptions.ConnectionError as exc:
            print(exc)
         out["tags"] = tags
