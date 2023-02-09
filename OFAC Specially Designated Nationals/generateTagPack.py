@@ -12,6 +12,7 @@ REGEX = {"BTC": r"\b([13][a-km-zA-HJ-NP-Z1-9]{25,34})|bc(0([ac-hj-np-z02-9]{39}|
          "ZEC": r"\b([tz][13][a-km-zA-HJ-NP-Z1-9]{33})\b",
          "ETH": r"\b((0x)?[0-9a-fA-F]{40})\b"}
 
+
 class Convert():
     @staticmethod
     def load_config():
@@ -65,7 +66,7 @@ class Convert():
         out = {"creator": config["creator"],
                 "title": config["title"],
                 "description": "Tagpack automatically created with the INTERPOL CNTL scraping tool",
-                "lastmod": str(timestamp),
+                "lastmod": timestamp.date(),
                 "source": config["source"]}
         try:
            with requests.get(config["source"]) as source:
