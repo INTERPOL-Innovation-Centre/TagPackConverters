@@ -29,7 +29,7 @@ class Convert():
     def checkValidAddress(assetCode, address):
         try:
             matched = re.match(REGEX[assetCode], address)
-            if matched == None:
+            if matched is None:
                 print("Is this a valid address?: %s (%s)" % (address, assetCode))
         except:
             print("Is this a valid address?: %s (%s)" % (address, assetCode))
