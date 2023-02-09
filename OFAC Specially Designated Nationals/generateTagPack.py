@@ -13,7 +13,7 @@ REGEX = {"BTC": r"\b([13][a-km-zA-HJ-NP-Z1-9]{25,34})|bc(0([ac-hj-np-z02-9]{39}|
          "ETH": r"\b((0x)?[0-9a-fA-F]{40})\b"}
 
 
-class Convert():
+class Convert:
     @staticmethod
     def load_config():
         with open("config.json", "r") as json_data_file:
@@ -63,24 +63,26 @@ class Convert():
             print("config.json file needs to define a title, a source, a label, a category and a creator")
             return
         timestamp = datetime.datetime.now()
-        out = {"creator": config["creator"],
-                "title": config["title"],
-                "description": "Tagpack automatically created with the INTERPOL CNTL scraping tool",
-                "lastmod": timestamp.date(),
-                "label": config["label"],
-                "category": config["category"],
-                "source": config["source"]}
+        data = {
+            "creator": config["creator"],
+            "title": config["title"],
+            "description": "Tagpack automatically created with the INTERPOL CNTL scraping tool",
+            "lastmod": timestamp.date(),
+            "label": config["label"],
+            "category": config["category"],
+            "source": config["source"]
+        }
         try:
-           with requests.get(config["source"]) as source:
-               raw_data = source.text
-               tags = Convert.add_details(raw_data)
+            with requests.get(config["source"]) as source:
+                raw_data = source.text
+                tags = Convert.add_details(raw_data)
         except requests.exceptions.ConnectionError as exc:
-           print(exc)
-        out["tags"] = tags
-        return out
+            print(exc)
+        data["tags"] = tags
+        return data
+
 
 if __name__ == "__main__":
     out = Convert.add_tags()
-    #print(yaml.dump(out, sort_keys=False))
     with open("OFAC_tagpack.yaml", "w") as fout:
         yaml.dump(out, fout, sort_keys=False)
