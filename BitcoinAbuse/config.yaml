@@ -1,4 +1,4 @@
-RAW_FILE_NAME:     "bitcoinabuse.jsonl"
+RAW_FILE_NAME:     "bitcoinabuse.json"
 TAGPACK_FILE_NAME: "bitcoinabuse_tagpack.yaml"
 URL:               "https://www.bitcoinabuse.com/reports"
 SOURCE:            "https://www.bitcoinabuse.com/"
