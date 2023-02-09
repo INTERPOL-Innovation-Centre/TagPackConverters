@@ -121,7 +121,7 @@ class TagPackGenerator:
     def generate(self):
         tags = []
         for row in self.rows:
-            label = 'Abuse report' if row['count'] == 1 else 'Abuse reports'
+            label = 'Abuse report at BitcoinAbuse.com' if row['count'] == 1 else 'Abuse reports at BitcoinAbuse.com'
             lastmod = datetime.fromisoformat(row['latest_date']).date()
             tag = {
                 'address': row['address'],
