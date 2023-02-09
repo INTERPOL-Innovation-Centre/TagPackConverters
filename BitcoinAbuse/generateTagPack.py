@@ -112,7 +112,7 @@ class TagPackGenerator:
             'source': source,
             'lastmod': lastmod,
             'currency': 'BTC',
-            'category': 'user',  # like in the OFAC TagPack generator
+            'category': 'perpetrator',
             'confidence': 'web_crawl',
             'tags': []
         }
