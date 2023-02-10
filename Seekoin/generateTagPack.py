@@ -84,7 +84,7 @@ class TagPackGenerator:
 
     def saveYaml(self, fn: str):
         with open(fn, 'w', encoding='utf-8') as f:
-            f.write(yaml.dump(self.data, sort_keys=False, allow_unicode=True))
+            f.write(yaml.dump(self.data, sort_keys=False))
 
 
 if __name__ == '__main__':
