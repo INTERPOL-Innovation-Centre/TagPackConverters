@@ -5,7 +5,7 @@ Convert SeeKoin data to a TagPack.
 
 import os
 import json
-from datetime import datetime
+from datetime import datetime, date
 from typing import List
 
 import yaml
@@ -48,7 +48,7 @@ class RawData:
                     print(json.dumps(data, ensure_ascii=False), file=jsonlines_file)
 
     def read(self) -> List[dict]:
-        with open(self.fn, 'r',encoding='utf-8') as jsonlines_file:
+        with open(self.fn, 'r', encoding='utf-8') as jsonlines_file:
             return [json.loads(line) for line in jsonlines_file]
 
 
@@ -57,13 +57,15 @@ class TagPackGenerator:
     Generate a TagPack from Seekoin data.
     """
 
-    def __init__(self, rows: List[dict], title: str, creator: str, description: str, lastmod: str, source: str):
+    def __init__(self, rows: List[dict], title: str, creator: str, description: str, lastmod: date, source: str):
         self.rows = rows
         self.data = {
             'title': title,
             'creator': creator,
             'description': description,
             'lastmod': lastmod,
+            'category': 'perpetrator',
+            'confidence': 'web_crawl',
             'tags': []
         }
         self.source = source
@@ -75,9 +77,7 @@ class TagPackGenerator:
                 'address': row['address'],
                 'currency': 'BTC',
                 'label': '{type} (comment: "{comment}…")'.format(type=row['type'], comment=row['comment']),
-                'source': 'https://seekoin.com/addr-{address}'.format(address=row['address']),
-                'category': 'User',
-                'confidence': 'web_crawl'
+                'source': 'https://seekoin.com/addr-{address}'.format(address=row['address'])
             }
             tags.append(tag)
         self.data['tags'] = tags
@@ -95,7 +95,7 @@ if __name__ == '__main__':
     if not os.path.exists(config['RAW_FILE_NAME']):
         raw_data.download()
 
-    last_mod = datetime.fromtimestamp(os.path.getmtime(config['RAW_FILE_NAME'])).isoformat()
+    last_mod = datetime.fromtimestamp(os.path.getmtime(config['RAW_FILE_NAME'])).date()
     generator = TagPackGenerator(raw_data.read(), config['TITLE'], config['CREATOR'], config['DESCRIPTION'],
                                  last_mod, config['SOURCE'])
     generator.generate()
