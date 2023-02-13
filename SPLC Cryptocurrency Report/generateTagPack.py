@@ -5,7 +5,7 @@ Convert Southern Poverty Law Center Cryptocurrency Report to a TagPack.
 
 import os
 import csv
-from datetime import datetime
+from datetime import datetime, date
 from typing import List
 
 import yaml
@@ -42,13 +42,16 @@ class TagPackGenerator:
     Generate a TagPack from SPLC Cryptocurrency Report.
     """
 
-    def __init__(self, rows: List[dict], title: str, creator: str, description: str, lastmod: str, source: str):
+    def __init__(self, rows: List[dict], title: str, creator: str, description: str, lastmod: date, source: str):
         self.rows = rows
         self.data = {
             'title': title,
             'creator': creator,
             'description': description,
             'lastmod': lastmod,
+            'abuse': 'extremism',
+            'category': 'user',  # like in the OFAC TagPack generator
+            'source': source,
             'tags': []
         }
         self.source = source
@@ -58,14 +61,12 @@ class TagPackGenerator:
         for row in self.rows:
             for column in ['Bitcoin Addresses', 'Ethereum Addresses', 'Litecoin Addresses', 'Monero Address']:
                 for address in row[column].split('\n'):
-                    if not address:
+                    if not address or address == 'uses':
                         continue
                     tag = {
-                        'address': address,
+                        'address': address.strip(),
                         'currency': CURRENCY[column],
-                        'label': row['Entity'],
-                        'source': self.source,
-                        'category': 'User'  # like in the OFAC TagPack generator
+                        'label': row['Entity']
                     }
                     tags.append(tag)
         self.data['tags'] = tags
@@ -83,7 +84,7 @@ if __name__ == '__main__':
     if not os.path.exists(config['RAW_FILE_NAME']):
         raw_data.download()
 
-    last_mod = datetime.fromtimestamp(os.path.getmtime(config['RAW_FILE_NAME'])).isoformat()
+    last_mod = datetime.fromtimestamp(os.path.getmtime(config['RAW_FILE_NAME'])).date()
     generator = TagPackGenerator(raw_data.read(), config['TITLE'], config['CREATOR'], config['DESCRIPTION'],
                                  last_mod, config['SOURCE'])
     generator.generate()

@@ -96,21 +96,25 @@ class TagPackGenerator:
             'creator': creator,
             'description': description,
             'lastmod': lastmod,
+            'source': source,
+            'category': 'perpetrator',
+            'abuse': 'terrorism',
             'tags': []
         }
-        self.source = source
 
     def generate(self):
         tags = []
+        processed_addresses = set()
         for row in self.rows:
+            if row['Address'] in processed_addresses:
+                continue
             tag = {
                 'address': row['Address'],
                 'currency': row['Currency'],
-                'label': 'Order ID: {order_id}'.format(order_id=row['Order ID']),
-                'source': self.source,
-                'category': 'User'  # like in the OFAC TagPack generator
+                'label': 'Seized by NBCTF of Israel (order ID: {order_id})'.format(order_id=row['Order ID'])
             }
             tags.append(tag)
+            processed_addresses.add(row['Address'])
         self.data['tags'] = tags
 
     def saveYaml(self, fn: str):
@@ -126,7 +130,7 @@ if __name__ == '__main__':
     if not os.path.exists(config['RAW_FILE_NAME']):
         raw_data.download()
 
-    last_mod = datetime.fromtimestamp(os.path.getmtime(config['RAW_FILE_NAME'])).isoformat()
+    last_mod = datetime.fromtimestamp(os.path.getmtime(config['RAW_FILE_NAME'])).date()
     generator = TagPackGenerator(raw_data.read(), config['TITLE'], config['CREATOR'], config['DESCRIPTION'],
                                  last_mod, config['SOURCE'])
     generator.generate()

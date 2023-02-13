@@ -8,6 +8,7 @@ from datetime import datetime as dt
 import yaml
 import requests
 
+
 class RawData:
     def __init__(self, fileName, url):
         self.fileName = fileName
@@ -25,26 +26,19 @@ class RawData:
             jsonData = json.load(fin)
         return jsonData["result"]
 
+
 class Tag:
-    def __init__(self, address, currency, label, source, category):
-        self.data = {}
-        self.data["address"]  = address
-        self.data["currency"] = currency
-        self.data["label"]    = label
-        self.data["source"]   = source
-        self.data["category"] = category
+    def __init__(self, address, currency, label):
+        self.data = {"address": address, "currency": currency, "label": label}
 
     def getTagData(self):
         return self.data
 
+
 class TagPack:
-    def __init__(self, title, creator, description, lastmod):
-        self.data = {}
-        self.data["title"]       = title
-        self.data["creator"]     = creator
-        self.data["description"] = description
-        self.data["lastmod"]     = lastmod
-        self.data["tags"]        = []
+    def __init__(self, title, creator, description, lastmod, source):
+        self.data = {"title": title, "creator": creator, "description": description, "lastmod": lastmod,
+                     "category": "perpetrator", "abuse": "ransomware", "source": source, "tags": []}
 
     def addTag(self, tag):
         self.data["tags"] += [tag.getTagData()]
@@ -52,16 +46,19 @@ class TagPack:
     def dumpYaml(self):
         return yaml.dump(self.data, sort_keys=False)
 
+
 class TagPackGenerator:
     def __init__(self, rawJson, title, creator, description, lastmod, source):
         self.rawJson = rawJson
-        self.tagPack = TagPack(title, creator, description, lastmod)
+        self.tagPack = TagPack(title, creator, description, lastmod, source)
         self.checkList = ["address", "blockchain", "family"]
-        self.source = source
 
     @staticmethod
     def getCoinAlias(blockchain):
-        table = {"ada": "ADA", "bitcoin cash": "BCH", "binance": "BNB", "bitcoin sv": "BSV", "bitcoin": "BTC", "dash": "DASH", "dogecoin": "DOGE", "eos": "EOS", "ethereum": "ETH", "litecoin": "LTC", "vertcoin": "VTC", "stellar lumen": "XLM", "monero": "XMR", "ripple": "XRP", "tez": "XTZ", "zcash": "ZEC"}
+        table = {"ada": "ADA", "bitcoin cash": "BCH", "binance": "BNB", "bitcoin sv": "BSV", "bitcoin": "BTC",
+                 "dash": "DASH", "dogecoin": "DOGE", "eos": "EOS", "ethereum": "ETH", "litecoin": "LTC",
+                 "vertcoin": "VTC", "stellar lumen": "XLM", "monero": "XMR", "ripple": "XRP", "tez": "XTZ",
+                 "zcash": "ZEC"}
         if blockchain in table:
             return table[blockchain]
         else:
@@ -78,14 +75,13 @@ class TagPackGenerator:
                 continue
             tag = Tag(datum["address"],
                       self.getCoinAlias(datum["blockchain"]),
-                      "Ransomware",
-                      self.source,
-                      datum["family"])
+                      "Ransomware: {family}".format(family=datum["family"]))
             self.tagPack.addTag(tag)
 
     def saveYaml(self, fileName):
         with open(fileName, "w") as fout:
             fout.write(self.tagPack.dumpYaml())
+
 
 if __name__ == "__main__":
     with open("config.yaml", "r") as fin:
@@ -94,8 +90,7 @@ if __name__ == "__main__":
     rawData = RawData(config["RAW_FILE_NAME"], config["URL"])
     rawJson = rawData.returnJson()
 
-    now = dt.now()
-    lastmod = now.strftime("%Y-%m-%d")
+    lastmod = dt.now().date()
 
     tagPackGenerator = TagPackGenerator(rawJson, config["TITLE"], config["CREATOR"], config["DESCRIPTION"], lastmod, config["SOURCE"])
     tagPackGenerator.generate()

@@ -98,6 +98,8 @@ class TagPackGenerator:
             'creator': creator,
             'description': description,
             'lastmod': lastmod,
+            'category': 'perpetrator',
+            'confidence': 'web_crawl',
             'tags': []
         }
         self.source = source
@@ -108,14 +110,10 @@ class TagPackGenerator:
             tag = {
                 'address': row['address'],
                 'currency': row['currency'],
-                'label': '{count} scam report{plural} as of {date}'.format(
-                    count=row['count'], plural='' if row['count'] == 1 else 's', date=row['date']
-                ),
+                'label': 'Abuse report at ScamSearch.io' if row['count'] == 1 else 'Abuse reports at ScamSearch.io',
                 'source': 'https://scamsearch.io/search_report?searchoption=all&search={address}'.format(
                     address=row['address']
-                ),
-                'category': 'User',
-                'confidence': 'web_crawl'
+                )
             }
             tags.append(tag)
         self.data['tags'] = tags
@@ -133,7 +131,7 @@ if __name__ == '__main__':
     if not os.path.exists(config['RAW_FILE_NAME']):
         raw_data.download()
 
-    last_mod = datetime.fromtimestamp(os.path.getmtime(config['RAW_FILE_NAME'])).isoformat()
+    last_mod = datetime.fromtimestamp(os.path.getmtime(config['RAW_FILE_NAME'])).date()
     generator = TagPackGenerator(raw_data.read(), config['TITLE'], config['CREATOR'], config['DESCRIPTION'],
                                  last_mod, config['SOURCE'])
     generator.generate()

@@ -6,7 +6,7 @@ import logging
 import os
 import re
 import json
-from datetime import datetime
+from datetime import datetime, date
 from queue import Queue
 from threading import Thread
 from time import sleep
@@ -82,7 +82,7 @@ def get_btc_com_data(driver: webdriver.Remote) -> dict:
         try:
             link = WebDriverWait(driver, 60).until(EC.element_to_be_clickable((By.XPATH, '//a[text()="BLOCKCHAIR"]')))
             driver.get(link.get_attribute('href'))
-        except TimeoutException:
+        except (TimeoutException, WebDriverException):
             logging.warning('Timeout. Retrying...')
             driver.refresh()
             continue
@@ -198,7 +198,7 @@ class RawData:
                 for address in tx_data['addresses']:
                     if address not in data:
                         data[address] = {'date': tx_data['date'], 'currency': currency}
-                    elif data[address]['currency'] == currency and data[address]['date'] > tx_data['date']:
+                    elif data[address]['currency'] == currency and data[address]['date'] < tx_data['date']:
                         data[address]['date'] = tx_data['date']
         wd.quit()
         with open(self.fn, 'w', encoding='utf-8') as json_file:
@@ -214,7 +214,7 @@ class TagPackGenerator:
     Generate a TagPack from PipeFlare data.
     """
 
-    def __init__(self, rows: dict, title: str, creator: str, description: str, lastmod: str, source: str):
+    def __init__(self, rows: dict, title: str, creator: str, description: str, lastmod: date, source: str):
         self.rows = [{'address': address, **data} for address, data in rows.items()]
         self.data = {
             'title': title,
@@ -234,7 +234,8 @@ class TagPackGenerator:
         for row in self.rows:
             tag = {
                 'address': row['address'],
-                'currency': row['currency']
+                'currency': row['currency'],
+                'lastmod': datetime.fromisoformat(row['date']).date()
             }
             tags.append(tag)
         self.data['tags'] = tags
@@ -249,11 +250,11 @@ if __name__ == '__main__':
         config = yaml.safe_load(config_file)
 
     logging.basicConfig(format='%(asctime)s - %(threadName)s - %(levelname)s - %(message)s', level=logging.INFO)
-    raw_data = RawData(config['RAW_FILE_NAME'], config['URL'])
+    raw_data = RawData(config['RAW_FILE_NAME'], config['SOURCE'])
     if not os.path.exists(config['RAW_FILE_NAME']):
         raw_data.download()
 
-    last_mod = datetime.fromtimestamp(os.path.getmtime(config['RAW_FILE_NAME'])).isoformat()
+    last_mod = datetime.fromtimestamp(os.path.getmtime(config['RAW_FILE_NAME'])).date()
     generator = TagPackGenerator(raw_data.read(), config['TITLE'], config['CREATOR'], config['DESCRIPTION'],
                                  last_mod, config['SOURCE'])
     generator.generate()

@@ -3,16 +3,18 @@
 Convert BitcoinAbuse data to a TagPack.
 """
 import os
-import sys
 import json
-from datetime import datetime
+from datetime import datetime, date
 from typing import List
 
 import yaml
 from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from selenium.common.exceptions import NoSuchElementException, TimeoutException, StaleElementReferenceException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.remote.webelement import WebElement
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.wait import WebDriverWait
 
 
 class RawData:
@@ -29,54 +31,72 @@ class RawData:
         options.set_preference('javascript.enabled', False)
         options.set_preference('permissions.default.image', 2)
         wd = webdriver.Firefox(options=options)
-        for _ in range(5):
+        wd.get(self.url)
+        # Collect reports
+        report_data = {}
+        banned_urls = set()
+
+        def yet_unknown_url(link: WebElement):
             try:
-                wd.get(self.url)
-            except TimeoutException:
-                print('Retrying URL {url} (retry {retry})'.format(url=self.url, retry=_+1), file=sys.stderr)
-                continue
-            else:
-                break
-        # Collect URLs of all reports
-        report_urls = set()
+                return link.get_attribute('href') not in report_data and link.get_attribute('href') not in banned_urls
+            except StaleElementReferenceException:
+                return False
+
+        report_xpath = '//a[contains(@href, "/reports/1") or contains(@href, "/reports/3")'\
+                       ' or contains(@href, "/reports/bc1")]'
         while True:
-            for report_link in wd.find_elements(By.XPATH, '//a[contains(@href, "/reports/1") or contains(@href, "/reports/3") or contains(@href, "/reports/bc1")]'):
-                report_urls.add(report_link.get_attribute('href'))
-            try:
-                next_page_link = wd.find_element(By.XPATH, '//ul[@class="pagination"]/li[contains(@class, "active")]/following-sibling::li/a')
-                next_page_link.click()
-            except NoSuchElementException:
-                break
-        #print('Collected {len} addresses'.format(len=len(report_urls)))
-        # Collect reports and write them into the raw data file
-        with open(self.fn, 'w', encoding='utf-8') as jsonlines_file:
-            for report_index, report_url in enumerate(report_urls, 1):
-                #print('Fetching {url} [{index}/{count}]'.format(url=report_url, index=report_index, count=len(report_urls)))
-                for _ in range(5):
+            report_links = list(filter(yet_unknown_url, wd.find_elements(By.XPATH, report_xpath)))
+            if len(report_links) > 0:
+                report_link = report_links[0]
+                report_url = report_link.get_attribute('href')
+                report_link.click()
+                for retry_index in range(20):
                     try:
-                        wd.get(report_url)
-                        # Here we try to find the most important element, which is absent on code 503 from CloudFlare
-                        address = wd.find_element(By.XPATH, '//th[text()="Address"]/following-sibling::td/i').text
-                    except (TimeoutException, NoSuchElementException):
-                        print('Retrying URL {url} (retry {retry})'.format(url=report_url, retry=_+1), file=sys.stderr)
+                        # Wait for address to appear
+                        WebDriverWait(wd, 60).until(
+                            EC.presence_of_element_located((By.XPATH, '//th[text()="Address"]/following-sibling::td/i'))
+                        )
+                    except TimeoutException:
+                        if 'chainabuse.com' not in wd.current_url:
+                            print('Reload {url} (retry {index})'.format(url=report_url, index=retry_index))
+                            wd.refresh()
+                        else:
+                            banned_urls.add(report_url)
+                            wd.back()
                         continue
                     else:
                         break
-                count = int(wd.find_element(By.XPATH, '//th[text()="Report Count"]/following-sibling::td').text)
-                latest_date = datetime.strptime(wd.find_element(By.XPATH, '//th[text()="Latest Report"]/following-sibling::td').text.split('\n')[0], '%a, %d %b %y %H:%M:%S %z').isoformat()
-                data = {
+                try:
+                    address = wd.find_element(By.XPATH, '//th[text()="Address"]/following-sibling::td/i').text
+                    count = int(wd.find_element(By.XPATH, '//th[text()="Report Count"]/following-sibling::td').text)
+                    latest_report_date = wd.find_element(By.XPATH, '//th[text()="Latest Report"]/following-sibling::td')
+                except NoSuchElementException:
+                    wd.back()
+                    continue
+                latest_datetime = datetime.strptime(latest_report_date.text.split('\n')[0], '%a, %d %b %y %H:%M:%S %z')
+                report_data[report_url] = {
                     'address': address,
                     'count': count,
-                    'latest_date': latest_date
+                    'latest_date': latest_datetime.isoformat()
                 }
-                print(json.dumps(data), file=jsonlines_file)
+                wd.back()
+            else:
+                try:
+                    next_page_xpath = '//ul[@class="pagination"]/li[contains(@class, "active")]/following-sibling::li/a'
+                    next_page_link = wd.find_element(By.XPATH, next_page_xpath)
+                    next_page_link.click()
+                except NoSuchElementException:
+                    break
+        # Write reports to raw data file
+        with open(self.fn, 'w') as json_file:
+            json.dump(report_data, json_file, indent=4)
         # Clean up
         wd.quit()
         os.remove('geckodriver.log')
 
     def read(self) -> List[dict]:
-        with open(self.fn, 'r', encoding='utf-8') as jsonlines_file:
-            return [json.loads(line) for line in jsonlines_file]
+        with open(self.fn, 'r', encoding='utf-8') as json_file:
+            return json.load(json_file).values()
 
 
 class TagPackGenerator:
@@ -84,32 +104,30 @@ class TagPackGenerator:
     Generate a TagPack from BitcoinAbuse data.
     """
 
-    def __init__(self, rows: List[dict], title: str, creator: str, description: str, lastmod: str, source: str):
-        self.rows = rows
+    def __init__(self, rows: List[dict], title: str, creator: str, description: str, lastmod: date, source: str):
         self.data = {
             'title': title,
             'creator': creator,
             'description': description,
+            'source': source,
             'lastmod': lastmod,
+            'currency': 'BTC',
+            'category': 'perpetrator',
+            'confidence': 'web_crawl',
             'tags': []
         }
-        self.source = source
+        self.rows = rows
 
     def generate(self):
         tags = []
         for row in self.rows:
-            date = datetime.fromisoformat(row['latest_date']).strftime('%Y-%m-%d')
-            if row['count'] == 1:
-                label = 'Abuse report added on {date}'.format(date=date)
-            else:
-                label = 'Last of {count} abuse reports added on {date}'.format(count=row['count'], date=date)
+            label = 'Abuse report at BitcoinAbuse.com' if row['count'] == 1 else 'Abuse reports at BitcoinAbuse.com'
+            lastmod = datetime.fromisoformat(row['latest_date']).date()
             tag = {
                 'address': row['address'],
-                'currency': 'BTC',
                 'label': label,
-                'source': 'https://www.bitcoinabuse.com/reports/{address}'.format(address=row['address']),
-                'category': 'User',  # like in the OFAC TagPack generator
-                'confidence': 'web_crawl'
+                'lastmod': lastmod,
+                'source': 'https://www.bitcoinabuse.com/reports/{address}'.format(address=row['address'])
             }
             tags.append(tag)
         self.data['tags'] = tags
@@ -127,7 +145,7 @@ if __name__ == '__main__':
     if not os.path.exists(config['RAW_FILE_NAME']):
         raw_data.download()
 
-    last_mod = datetime.fromtimestamp(os.path.getmtime(config['RAW_FILE_NAME'])).isoformat()
+    last_mod = datetime.fromtimestamp(os.path.getmtime(config['RAW_FILE_NAME'])).date()
     generator = TagPackGenerator(raw_data.read(), config['TITLE'], config['CREATOR'], config['DESCRIPTION'],
                                  last_mod, config['SOURCE'])
     generator.generate()

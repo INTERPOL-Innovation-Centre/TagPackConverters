@@ -5,11 +5,12 @@ Convert SeeKoin data to a TagPack.
 
 import os
 import json
-from datetime import datetime
+from datetime import datetime, date
 from typing import List
 
 import yaml
 from selenium import webdriver
+from selenium.common import StaleElementReferenceException
 from selenium.webdriver.common.by import By
 
 
@@ -38,17 +39,24 @@ class RawData:
                         wd.quit()
                         os.remove('geckodriver.log')
                         return
+                    # Skip spam entries
+                    try:
+                        comment = row.find_element(By.CSS_SELECTOR, 'td:nth-child(5)').text
+                    except StaleElementReferenceException:
+                        continue
+                    if comment == 'Bittrex is a global crypt' or comment == 'Huobi is a Seychelles-bas':
+                        continue
                     data = {
                         'address': address_link.text,
                         'date': row.find_element(By.CSS_SELECTOR, 'td:nth-child(2)').text,
                         'type': row.find_element(By.CSS_SELECTOR, 'td:nth-child(3)').text,
                         'hits': int(row.find_element(By.CSS_SELECTOR, 'td:nth-child(4)').text),
-                        'comment': row.find_element(By.CSS_SELECTOR, 'td:nth-child(5)').text
+                        'comment': comment
                     }
                     print(json.dumps(data, ensure_ascii=False), file=jsonlines_file)
 
     def read(self) -> List[dict]:
-        with open(self.fn, 'r',encoding='utf-8') as jsonlines_file:
+        with open(self.fn, 'r', encoding='utf-8') as jsonlines_file:
             return [json.loads(line) for line in jsonlines_file]
 
 
@@ -57,13 +65,15 @@ class TagPackGenerator:
     Generate a TagPack from Seekoin data.
     """
 
-    def __init__(self, rows: List[dict], title: str, creator: str, description: str, lastmod: str, source: str):
+    def __init__(self, rows: List[dict], title: str, creator: str, description: str, lastmod: date, source: str):
         self.rows = rows
         self.data = {
             'title': title,
             'creator': creator,
             'description': description,
             'lastmod': lastmod,
+            'category': 'perpetrator',
+            'confidence': 'web_crawl',
             'tags': []
         }
         self.source = source
@@ -75,16 +85,14 @@ class TagPackGenerator:
                 'address': row['address'],
                 'currency': 'BTC',
                 'label': '{type} (comment: "{comment}…")'.format(type=row['type'], comment=row['comment']),
-                'source': 'https://seekoin.com/addr-{address}'.format(address=row['address']),
-                'category': 'User',
-                'confidence': 'web_crawl'
+                'source': 'https://seekoin.com/addr-{address}'.format(address=row['address'])
             }
             tags.append(tag)
         self.data['tags'] = tags
 
     def saveYaml(self, fn: str):
         with open(fn, 'w', encoding='utf-8') as f:
-            f.write(yaml.dump(self.data, sort_keys=False, allow_unicode=True))
+            f.write(yaml.dump(self.data, sort_keys=False))
 
 
 if __name__ == '__main__':
@@ -95,7 +103,7 @@ if __name__ == '__main__':
     if not os.path.exists(config['RAW_FILE_NAME']):
         raw_data.download()
 
-    last_mod = datetime.fromtimestamp(os.path.getmtime(config['RAW_FILE_NAME'])).isoformat()
+    last_mod = datetime.fromtimestamp(os.path.getmtime(config['RAW_FILE_NAME'])).date()
     generator = TagPackGenerator(raw_data.read(), config['TITLE'], config['CREATOR'], config['DESCRIPTION'],
                                  last_mod, config['SOURCE'])
     generator.generate()
