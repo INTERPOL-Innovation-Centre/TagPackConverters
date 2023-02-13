@@ -10,6 +10,7 @@ from typing import List
 
 import yaml
 from selenium import webdriver
+from selenium.common import StaleElementReferenceException
 from selenium.webdriver.common.by import By
 
 
@@ -38,12 +39,19 @@ class RawData:
                         wd.quit()
                         os.remove('geckodriver.log')
                         return
+                    # Skip spam entries
+                    try:
+                        comment = row.find_element(By.CSS_SELECTOR, 'td:nth-child(5)').text
+                    except StaleElementReferenceException:
+                        continue
+                    if comment == 'Bittrex is a global crypt' or comment == 'Huobi is a Seychelles-bas':
+                        continue
                     data = {
                         'address': address_link.text,
                         'date': row.find_element(By.CSS_SELECTOR, 'td:nth-child(2)').text,
                         'type': row.find_element(By.CSS_SELECTOR, 'td:nth-child(3)').text,
                         'hits': int(row.find_element(By.CSS_SELECTOR, 'td:nth-child(4)').text),
-                        'comment': row.find_element(By.CSS_SELECTOR, 'td:nth-child(5)').text
+                        'comment': comment
                     }
                     print(json.dumps(data, ensure_ascii=False), file=jsonlines_file)
 
