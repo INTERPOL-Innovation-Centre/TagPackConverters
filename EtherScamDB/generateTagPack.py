@@ -42,7 +42,7 @@ class Tag:
             "Scamming": {"category": "perpetrator", "abuse": "scam"},
             "Scam": {"category": "perpetrator", "abuse": "scam"}
         }
-        self.data = {"address": address, "currency": currency, "label": label,
+        self.data = {"address": address, "currency": currency, "label": "Scam at " + label,
                      "source": "https://cryptoscamdb.org/" if source == "MyCrypto" else source,
                      "category": category_and_abuse_map[category]["category"],
                      "abuse": category_and_abuse_map[category]["abuse"]}

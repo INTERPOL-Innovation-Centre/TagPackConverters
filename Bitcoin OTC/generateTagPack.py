@@ -58,7 +58,7 @@ class TagPackGenerator:
             if row['bitcoinaddress'] is None:
                 continue  # There is no value for a tag without BTC address
             tag = {'address': row['bitcoinaddress']}
-            label = ['Libera IRC #bitcoin-otc nick: {nick}'.format(nick=row['nick'])]
+            label = ['User {nick} at Libera IRC #bitcoin-otc channel'.format(nick=row['nick'])]
             keyid = row['keyid']
             if keyid is not None:
                 label += ['OpenPGP key id: {keyid}'.format(keyid=keyid)]
