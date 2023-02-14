@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Convert BitcoinTalk users data to a TagPack.
+Convert GlassChain data to a TagPack.
 """
 import os
 import re
