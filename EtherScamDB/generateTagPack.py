@@ -12,7 +12,8 @@ REGEX = [
     ('BCH', re.compile(r'\b(((?:bitcoincash|bchtest):)?([13][0-9a-zA-Z]{33}))|(((?:bitcoincash|bchtest):)?(qp)?[0-9a-zA-Z]{40})\b')),
     ('LTC', re.compile(r'\b([LM3][a-km-zA-HJ-NP-Z1-9]{25,33})\b')),
     ('ZEC', re.compile(r'\b([tz][13][a-km-zA-HJ-NP-Z1-9]{33})\b')),
-    ('ETH', re.compile(r'\b((0x)?[0-9a-fA-F]{40})\b'))
+    ('ETH', re.compile(r'\b((0x)?[0-9a-fA-F]{40})\b')),
+    ('USDT', re.compile(r'\bT[A-Za-z1-9]{33}\b'))
 ]
 
 
@@ -42,7 +43,7 @@ class Tag:
             "Scamming": {"category": "perpetrator", "abuse": "scam"},
             "Scam": {"category": "perpetrator", "abuse": "scam"}
         }
-        self.data = {"address": address, "currency": currency, "label": label,
+        self.data = {"address": address, "currency": currency, "label": "Scam at " + label,
                      "source": "https://cryptoscamdb.org/" if source == "MyCrypto" else source,
                      "category": category_and_abuse_map[category]["category"],
                      "abuse": category_and_abuse_map[category]["abuse"]}

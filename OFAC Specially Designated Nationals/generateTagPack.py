@@ -10,7 +10,8 @@ REGEX = {"BTC": r"\b([13][a-km-zA-HJ-NP-Z1-9]{25,34})|bc(0([ac-hj-np-z02-9]{39}|
          "BCH": r"\b(((?:bitcoincash|bchtest):)?([13][0-9a-zA-Z]{33}))|(((?:bitcoincash|bchtest):)?(qp)?[0-9a-zA-Z]{40})\b",
          "LTC": r"\b([LM3][a-km-zA-HJ-NP-Z1-9]{25,33})\b",
          "ZEC": r"\b([tz][13][a-km-zA-HJ-NP-Z1-9]{33})\b",
-         "ETH": r"\b((0x)?[0-9a-fA-F]{40})\b"}
+         "ETH": r"\b((0x)?[0-9a-fA-F]{40})\b",
+         "USDT": r"\bT[A-Za-z1-9]{33}\b"}
 
 
 class Convert:

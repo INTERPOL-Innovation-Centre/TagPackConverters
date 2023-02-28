@@ -6,9 +6,9 @@ import logging
 import os
 import re
 import json
-from datetime import datetime, date
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, date, timezone
 from queue import Queue
-from threading import Thread
 from time import sleep
 
 import yaml
@@ -53,7 +53,6 @@ def collect_links(start_url: str, option_text: str, out_queue: Queue):
         except NoSuchElementException:
             out_queue.put(None)
             break
-
     wd.quit()
 
 
@@ -106,7 +105,16 @@ def get_etherscan_data(driver: webdriver.Remote) -> dict:
     tx_date_xpath = '//div[@id="ContentPlaceHolder1_divTimeStamp"]/div[contains(@class, "row")]/div[2]'
     tx_date_text = driver.find_element(By.XPATH, tx_date_xpath).text
     tx_date = datetime.strptime(RE_DATE_ETHERSCAN.search(tx_date_text).group(1), '%b-%d-%Y %I:%M:%S %p +%Z')
-    tx_address = driver.find_element(By.XPATH, '//a[@id="addressCopy"]').text
+    tx_address = driver.find_element(By.XPATH, '//i[@data-bs-content="The sending party of the transaction."]/parent::div/following-sibling::div/div/a[contains(@href, "/address/")]').text
+    return {'date': tx_date, 'addresses': [tx_address]}
+
+
+def get_tronscan_data(driver: webdriver.Remote) -> dict:
+    tx_address_xpath = '//section[@id="n_owner_address"]/section/span/div/div/span/div/a/div'
+    tx_address = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, tx_address_xpath))).text
+    tx_date_text_xpath = '//th[span[text()="Time"]]/following-sibling::td/div/div/span/span'
+    tx_date_text = driver.find_element(By.XPATH, tx_date_text_xpath).text
+    tx_date = datetime.strptime(tx_date_text, '%Y-%m-%d %H:%M:%S (Local)').astimezone(timezone.utc)
     return {'date': tx_date, 'addresses': [tx_address]}
 
 
@@ -117,6 +125,87 @@ class DatetimeEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
+def save_source_addresses(options: list, in_queue: Queue, fn: str):
+    """
+    Collect addresses from cryptocurrency explorers
+    """
+    wd = webdriver.Firefox()
+    end_counter = 0
+    data = {}
+    while True:
+        link = in_queue.get()
+        if link is None:
+            end_counter += 1
+            if end_counter == len(options):
+                break
+        else:
+            for _ in range(5):
+                try:
+                    wd.get(link)
+                    logging.info('{link} ({count})'.format(link=link, count=in_queue.qsize()))
+                except TimeoutException:
+                    logging.warning('Timeout. Retrying...')
+                    continue
+                except WebDriverException:
+                    logging.warning('Driver error. Retrying...')
+                    continue
+                else:
+                    break
+            if link.startswith('https://blockchair.com/bitcoin/transaction/'):
+                currency = 'BTC'
+                try:
+                    tx_data = get_blockchair_data(wd)
+                except NoSuchElementException as e:
+                    try:
+                        error_element = wd.find_element(By.XPATH, '//div[@class="h3"]')
+                        if error_element.text == ' Not Found ':
+                            logging.warning('Blockchair.com has no information about {tx}'.format(tx=link.split('/')[-1]))
+                            continue
+                    except NoSuchElementException:
+                        raise e
+            elif link.startswith('https://bch.btc.com/'):
+                currency = 'BCH'
+                tx_data = get_btc_com_data(wd)
+            elif link.startswith('https://blockchair.com/litecoin/transaction/'):
+                currency = 'LTC'
+                tx_data = get_blockchair_data(wd)
+            elif link.startswith('https://etherscan.io/tx/'):
+                currency = 'ETH'
+                try:
+                    tx_data = get_etherscan_data(wd)
+                    sleep(1.0)
+                except NoSuchElementException as e:
+                    try:
+                        error_element_xpath = '//h2[@class="h5" and text()="Sorry, We are unable to locate this TxnHash"]'
+                        error_element = wd.find_element(By.XPATH, error_element_xpath)
+                        logging.warning('Etherscan.io has no information about {tx}'.format(tx=link.split('/')[-1]))
+                        continue
+                    except NoSuchElementException:
+                        raise e
+            elif link.startswith('https://tronscan.org/#/transaction/'):
+                currency = 'USDT'
+                try:
+                    tx_data = get_tronscan_data(wd)
+                except TimeoutException as e:
+                    try:
+                        error_element_xpath = '//span[text()="Sorry, the transaction could not be found."]'
+                        error_element = wd.find_element(By.XPATH, error_element_xpath)
+                        logging.warning('Tronscan.io has no information about {tx}'.format(tx=link.split('/')[-1]))
+                        continue
+                    except NoSuchElementException:
+                        raise e
+            else:
+                raise ValueError('Link {link} does not have data processor'.format(link=link))
+            for address in tx_data['addresses']:
+                if address not in data:
+                    data[address] = {'date': tx_data['date'], 'currency': currency}
+                elif data[address]['currency'] == currency and data[address]['date'] < tx_data['date']:
+                    data[address]['date'] = tx_data['date']
+    wd.quit()
+    with open(fn, 'w', encoding='utf-8') as json_file:
+        json.dump(data, json_file, cls=DatetimeEncoder, indent=4)
+
+
 class RawData:
     """
     Download and read data provided by the source.
@@ -124,85 +213,14 @@ class RawData:
     def __init__(self, fn: str, url: str):
         self.fn = fn
         self.url = url
-        self.currency_links = {}
 
     def download(self):
         links_queue = Queue()
-
-        # Start tx explorer link collectors
-        options_texts = ['Bitcoin (BTC)', 'Bitcoin Cash (BCH)', 'Litecoin (LTC)', 'Ethereum (ETH)']
-        collector_threads = [
-            Thread(target=collect_links, args=(self.url, text, links_queue), name=text) for text in options_texts
-        ]
-        for thread in collector_threads:
-            thread.start()
-
-        # Collect addresses from cryptocurrency explorers
-        wd = webdriver.Firefox()
-        end_counter = 0
-        data = {}
-        while True:
-            link = links_queue.get()
-            if link is None:
-                end_counter += 1
-                if end_counter == len(options_texts):
-                    break
-            else:
-                for _ in range(5):
-                    try:
-                        wd.get(link)
-                        logging.info('{link} ({count})'.format(link=link, count=links_queue.qsize()))
-                    except TimeoutException:
-                        logging.warning('Timeout. Retrying...')
-                        continue
-                    except WebDriverException:
-                        logging.warning('Driver error. Retrying...')
-                        continue
-                    else:
-                        break
-                if link.startswith('https://blockchair.com/bitcoin/transaction/'):
-                    currency = 'BTC'
-                    try:
-                        tx_data = get_blockchair_data(wd)
-                    except NoSuchElementException as e:
-                        try:
-                            error_element = wd.find_element(By.XPATH, '//div[@class="h3"]')
-                            if error_element.text == ' Not Found ':
-                                logging.warning('Blockchair.com has no information about {tx}'
-                                                .format(tx=link.split('/')[-1]))
-                                continue
-                        except NoSuchElementException:
-                            raise e
-                elif link.startswith('https://bch.btc.com/'):
-                    currency = 'BCH'
-                    tx_data = get_btc_com_data(wd)
-                elif link.startswith('https://blockchair.com/litecoin/transaction/'):
-                    currency = 'LTC'
-                    tx_data = get_blockchair_data(wd)
-                elif link.startswith('https://etherscan.io/tx/'):
-                    currency = 'ETH'
-                    try:
-                        tx_data = get_etherscan_data(wd)
-                        sleep(1.0)
-                    except NoSuchElementException as e:
-                        try:
-                            error_element = wd.find_element(By.XPATH, '//p[contains(@class, "lead")]')
-                            if error_element.text == 'Sorry, We are unable to locate this TxnHash':
-                                logging.warning('Etherscan.io has no information about {tx}'
-                                                .format(tx=link.split('/')[-1]))
-                                continue
-                        except NoSuchElementException:
-                            raise e
-                else:
-                    raise ValueError('Link {link} does not have data processor'.format(link=link))
-                for address in tx_data['addresses']:
-                    if address not in data:
-                        data[address] = {'date': tx_data['date'], 'currency': currency}
-                    elif data[address]['currency'] == currency and data[address]['date'] < tx_data['date']:
-                        data[address]['date'] = tx_data['date']
-        wd.quit()
-        with open(self.fn, 'w', encoding='utf-8') as json_file:
-            json.dump(data, json_file, cls=DatetimeEncoder, indent=4)
+        options_texts = ['Bitcoin (BTC)', 'Bitcoin Cash (BCH)', 'Litecoin (LTC)', 'Ethereum (ETH)', 'Tether TRC20 (USDT)']
+        with ThreadPoolExecutor(max_workers=4) as executor:
+            executor.submit(save_source_addresses, options_texts, links_queue, self.fn)
+            for text in options_texts:
+                executor.submit(collect_links, self.url, text, links_queue)
 
     def read(self) -> dict:
         with open(self.fn, 'r', encoding='utf-8') as json_file:
