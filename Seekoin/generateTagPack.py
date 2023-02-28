@@ -84,7 +84,7 @@ class TagPackGenerator:
             tag = {
                 'address': row['address'],
                 'currency': 'BTC',
-                'label': '{type} (comment: "{comment}…")'.format(type=row['type'], comment=row['comment']),
+                'label': '{type} report(s) at SeeKoin.com'.format(type=row['type']),
                 'source': 'https://seekoin.com/addr-{address}'.format(address=row['address'])
             }
             tags.append(tag)
