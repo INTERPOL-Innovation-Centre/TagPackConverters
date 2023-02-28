@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Convert BitcoinTalk users data to a TagPack.
+Convert GlassChain data to a TagPack.
 """
 import os
 import re
@@ -126,7 +126,7 @@ class RawData:
 
 class TagPackGenerator:
     """
-    Generate a TagPack from BitcoinTalk users data.
+    Generate a TagPack from GlassChain data.
     """
 
     def __init__(self, raw_data_: dict, title: str, creator: str, description: str, lastmod: str, source: str):
