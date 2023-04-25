@@ -2,10 +2,10 @@
 """
 Convert CoinPayU data to a TagPack.
 """
+import json
 import logging
 import os
 import re
-import json
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, date, timezone
 from queue import Queue
@@ -15,45 +15,47 @@ import yaml
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException, TimeoutException, WebDriverException
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-
 
 RE_DATE_BLOCKCHAIR = re.compile(r'date: (\d\d\d\d-\d\d-\d\d)')
 RE_DATE_ETHERSCAN = re.compile(r'\(([^)]+)\)')
 
 
 def collect_links(start_url: str, option_text: str, out_queue: Queue):
-    wd = webdriver.Firefox()
-    wd.get(start_url)
+    options = webdriver.FirefoxOptions()
+    options.add_argument('--headless')
 
-    select = Select(WebDriverWait(wd, 15).until(EC.element_to_be_clickable((By.XPATH, '//select'))))
-    WebDriverWait(wd, 15).until(EC.element_to_be_clickable((By.XPATH, '//select/option')))
-    select.select_by_visible_text(option_text)
+    with webdriver.Firefox(options=options) as wd:
+        wd.get(start_url)
 
-    collected = set()
-    while True:
-        try:
-            WebDriverWait(wd, 60).until(EC.presence_of_all_elements_located((By.XPATH, '//tbody/tr')))
-        except TimeoutException:
-            logging.warning('Browser hangs, going one page back')
-            wd.find_element(By.XPATH, '//span[text()="«"]').click()  # If browser hangs, try to go to the previous page
-            continue
-        for link in wd.find_elements(By.XPATH, '//a[@title="check"]'):
-            url = link.get_attribute('href')
-            if url not in collected:
-                out_queue.put(url)
-                collected.add(url)
-                logging.info(url)
-        try:
-            next_page = wd.find_element(By.XPATH, '//span[text()="»"]')
-            next_page.location_once_scrolled_into_view  # Workaround from https://stackoverflow.com/a/56085622
-            next_page.click()
-        except NoSuchElementException:
-            out_queue.put(None)
-            break
-    wd.quit()
+        select = Select(WebDriverWait(wd, 15).until(EC.element_to_be_clickable((By.XPATH, '//select'))))
+        WebDriverWait(wd, 15).until(EC.element_to_be_clickable((By.XPATH, '//select/option')))
+        select.select_by_visible_text(option_text)
+
+        collected = set()
+        while True:
+            try:
+                WebDriverWait(wd, 60).until(EC.presence_of_all_elements_located((By.XPATH, '//tbody/tr')))
+            except TimeoutException:
+                logging.warning('Browser hangs, going one page back')
+                wd.find_element(By.XPATH, '//span[text()="«"]').click()  # If browser hangs, try to go to the previous page
+                continue
+            for link in wd.find_elements(By.XPATH, '//a[@title="check"]'):
+                url = link.get_attribute('href')
+                if url not in collected:
+                    out_queue.put(url)
+                    collected.add(url)
+                    logging.debug(url)
+            try:
+                next_page = wd.find_element(By.XPATH, '//span[text()="»"]')
+                next_page.location_once_scrolled_into_view  # Workaround from https://stackoverflow.com/a/56085622
+                next_page.click()
+            except NoSuchElementException:
+                out_queue.put(None)
+                break
+        wd.quit()
 
 
 def get_blockchair_data(driver: webdriver.Remote) -> dict:
@@ -129,7 +131,9 @@ def save_source_addresses(options: list, in_queue: Queue, fn: str):
     """
     Collect addresses from cryptocurrency explorers
     """
-    wd = webdriver.Firefox()
+    options = webdriver.FirefoxOptions()
+    options.add_argument('--headless')
+    wd = webdriver.Firefox(options=options)
     end_counter = 0
     data = {}
     while True:

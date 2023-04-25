@@ -201,7 +201,8 @@ class TagPackGenerator:
                         'label': label,
                         'lastmod': last_mod.date(),
                         'source': urljoin('https://glasschain.org/', wallet['source']),
-                        'category': category
+                        'category': category,
+                        'confidence': 'web_crawl',
                     })
         self.data['tags'] = tags
 

@@ -71,6 +71,7 @@ class Convert:
             "lastmod": timestamp.date(),
             "label": config["label"],
             "category": config["category"],
+            'confidence': 'authority_data',
             "source": config["source"]
         }
         try:

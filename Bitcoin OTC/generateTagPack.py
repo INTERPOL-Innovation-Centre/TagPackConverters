@@ -48,6 +48,7 @@ class TagPackGenerator:
             'lastmod': lastmod,
             'currency': 'BTC',
             'category': 'user',
+            'confidence': 'web_crawl',
             'tags': []
         }
 
