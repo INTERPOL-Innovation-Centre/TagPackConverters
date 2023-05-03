@@ -52,6 +52,7 @@ class TagPackGenerator:
             'abuse': 'extremism',
             'category': 'user',  # like in the OFAC TagPack generator
             'source': source,
+            'confidence': 'forensic',
             'tags': []
         }
         self.source = source

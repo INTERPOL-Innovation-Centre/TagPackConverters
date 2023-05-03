@@ -1,0 +1,26 @@
+version: '3.5'
+
+services:
+  tagpackcreation:
+    image: python:3.10-bullseye   
+    volumes:
+      - '.:/apps/'
+
+    command:
+      bash -c "apt-get update
+        && apt install -y firefox-esr
+        && echo '=== Installing geckodriver ==='
+        && curl -fL -o /tmp/geckodriver.tar.gz https://github.com/mozilla/geckodriver/releases/download/v0.33.0/geckodriver-v0.33.0-linux64.tar.gz 
+        && tar -xzf /tmp/geckodriver.tar.gz -C /tmp/ 
+        && chmod +x /tmp/geckodriver 
+        && mv /tmp/geckodriver /usr/bin/ 
+        && /usr/local/bin/pip install -r /apps/requirements.txt
+        && echo '=== Installed versions ==='
+        && /usr/bin/firefox -V
+        && /usr/bin/geckodriver -V
+        && /usr/local/bin/python3 -c 'import selenium; print(selenium.__version__)'
+        && echo '=== Running Converters ==='
+        && cd apps        
+        && find . -maxdepth 1 -type d -not -path '*/.*' -not -path '.' -exec sh -c ' cd \"{}\"; pwd; date; /usr/local/bin/python3 ./generateTagPack.py; cd -' \;"
+       
+       

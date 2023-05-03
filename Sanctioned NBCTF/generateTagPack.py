@@ -42,7 +42,9 @@ class RawData:
 
         The site is protected against robots, hence we use selenium to be able to solve the appearing CAPTCHA.
         """
-        wd = webdriver.Firefox()
+        options = webdriver.FirefoxOptions()
+        options.add_argument('--headless')
+        wd = webdriver.Firefox(options=options)
         wd.maximize_window()  # Without this, we do not get values in the last column
         wd.get(self.url)
         table = WebDriverWait(wd, 30).until(  # Wait for up to 30 seconds, because it needs time to solve CAPTCHA
@@ -100,6 +102,7 @@ class TagPackGenerator:
             'source': source,
             'category': 'perpetrator',
             'abuse': 'terrorism',
+            'confidence': 'autority_data',
             'tags': []
         }
 

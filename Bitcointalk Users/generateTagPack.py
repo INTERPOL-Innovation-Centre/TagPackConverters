@@ -147,6 +147,7 @@ class RawData:
         options = Options()
         options.set_preference('javascript.enabled', False)
         options.set_preference('permissions.default.image', 2)
+        options.add_argument('--headless')
         wd = webdriver.Firefox(options=options)
         # Scrape user profiles
         if update:
@@ -190,6 +191,7 @@ class TagPackGenerator:
             'description': description,
             'lastmod': lastmod,
             'category': 'user',  # like in the OFAC TagPack generator
+            'confidence': 'web_crawl',
             'tags': []
         }
         self.source = source

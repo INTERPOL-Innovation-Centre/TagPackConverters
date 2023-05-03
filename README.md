@@ -1,5 +1,5 @@
 # What is this?
-Each of the above folder is a source of verifyable information linking a cryptocurrency wallet to an entity.
+Each of the above folder is a source of verifiable information linking a cryptocurrency wallet to an entity.
 These sources are public sanctions lists as well as other publicly advertised lists published by service providers.
 
 These lists help investigators make links between addresses and entities but absolutely need to be verified prior to prosecution.
@@ -24,6 +24,25 @@ These are typically installed with [pip](https://pip.pypa.io/en/stable/)
 ```
 pip3 install -r requirements.txt
 ```
+
+## Run in a docker container 
+
+This approach is a convenient way of generating all tagpacks. It can easily be deployed on a server.
+
+Clone the repository, start up the container
+
+```
+docker-compose up -d
+```
+
+You can check the progress in the log file:
+
+```commandline
+docker-compose logs  -f tagpackcreation
+```
+
+
+
 ## Disclaimer
 *Prior to working on this repository and its contents, please make sure your agree to our [disclaimer](https://github.com/INTERPOL-Innovation-Centre/DISCLAIMER)*  
 *This repository only contains the code, not the police data. Please do not store your TagPack(s) in this repository.*  

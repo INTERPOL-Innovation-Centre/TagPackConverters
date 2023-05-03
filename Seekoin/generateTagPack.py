@@ -23,7 +23,9 @@ class RawData:
         self.url = url
 
     def download(self):
-        wd = webdriver.Firefox()
+        options = webdriver.FirefoxOptions()
+        options.add_argument('--headless')
+        wd = webdriver.Firefox(options=options)
         wd.get(self.url)
         with open(self.fn, 'w', encoding='utf-8') as jsonlines_file:
             while True:

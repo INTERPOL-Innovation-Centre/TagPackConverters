@@ -34,6 +34,7 @@ def collect_links(start_url: str, out_queue: Queue, next_page_link_xpath=None, l
     options = Options()
     options.set_preference('javascript.enabled', False)
     options.set_preference('permissions.default.image', 2)
+    options.add_argument('--headless')
     wd = webdriver.Firefox(options=options)
 
     wd.get(start_url)
@@ -123,7 +124,9 @@ class RawData:
             thread.start()
 
         # Collect TX links and get source addresses
-        wd = webdriver.Firefox()
+        options = Options()
+        options.add_argument('--headless')
+        wd = webdriver.Firefox(options=options)
         urls_finished = 0
         processed_tx_links = {}
         while True:

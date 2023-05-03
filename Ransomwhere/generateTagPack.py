@@ -36,9 +36,9 @@ class Tag:
 
 
 class TagPack:
-    def __init__(self, title, creator, description, lastmod, source):
+    def __init__(self, title, creator, description, lastmod, source, confidence):
         self.data = {"title": title, "creator": creator, "description": description, "lastmod": lastmod,
-                     "category": "perpetrator", "abuse": "ransomware", "source": source, "tags": []}
+                "category": "perpetrator", "abuse": "ransomware", "source": source, "confidence": confidence, "tags": []}
 
     def addTag(self, tag):
         self.data["tags"] += [tag.getTagData()]
@@ -48,9 +48,9 @@ class TagPack:
 
 
 class TagPackGenerator:
-    def __init__(self, rawJson, title, creator, description, lastmod, source):
+    def __init__(self, rawJson, title, creator, description, lastmod, source, confidence):
         self.rawJson = rawJson
-        self.tagPack = TagPack(title, creator, description, lastmod, source)
+        self.tagPack = TagPack(title, creator, description, lastmod, source, confidence)
         self.checkList = ["address", "blockchain", "family"]
 
     @staticmethod
@@ -92,6 +92,6 @@ if __name__ == "__main__":
 
     lastmod = dt.now().date()
 
-    tagPackGenerator = TagPackGenerator(rawJson, config["TITLE"], config["CREATOR"], config["DESCRIPTION"], lastmod, config["SOURCE"])
+    tagPackGenerator = TagPackGenerator(rawJson, config["TITLE"], config["CREATOR"], config["DESCRIPTION"], lastmod, config["SOURCE"], config["CONFIDENCE"])
     tagPackGenerator.generate()
     tagPackGenerator.saveYaml(config["TAGPACK_FILE_NAME"])
