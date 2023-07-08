@@ -57,7 +57,7 @@ class RawData:
         currency quote.
         """
         header_row = [cell.text.strip() for cell in table.find_elements(By.XPATH, 'tbody/tr[1]/th')]
-        assert header_row == ['Order ID', 'Full name', 'Palestinian Authority ID No', 'Palestinian Authority Passport No', 'D.O.B (DD/MM/YYYY)', 'Virtual currency address / User ID', 'Currency']
+        assert header_row == ['Order ID', 'Full name', 'Palestinian Authority ID No', 'Palestinian Authority Passport No', 'D.O.B (DD/MM/YYYY)', 'Virtual currency address / User ID', '']
         data_rows = [['Order ID', 'Address', 'Currency']]  # This is the container of values
         column_count = len(header_row)
         order_id = ''
