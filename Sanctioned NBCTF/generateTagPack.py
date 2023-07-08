@@ -18,8 +18,8 @@ from selenium.webdriver.support import expected_conditions as EC
 
 # Taken from OFAC Specially Designated Nationals generator and modified
 REGEX = [
-    ('BTC', re.compile(r'\b((bc(0([ac-hj-np-z02-9]{39}|[ac-hj-np-z02-9]{59})|1[ac-hj-np-z02-9]{8,87}))|[13][a-km-zA-HJ-NP-Z1-9]{25,34})\b')),
-    ('BCH', re.compile(r'\b(((?:bitcoincash|bchtest):)?([13][0-9a-zA-Z]{33}))|(((?:bitcoincash|bchtest):)?(qp)?[0-9a-zA-Z]{40})\b')),
+    ('BTC', re.compile(r'\b((?:[13]|bc1)[A-HJ-NP-Za-km-z1-9]{27,34})\b')),
+    ('BCH', re.compile(r'\b(((?:bitcoincash|bchtest):)?(qp)?[0-9a-zA-Z]{40})\b')),
     ('LTC', re.compile(r'\b([LM3][a-km-zA-HJ-NP-Z1-9]{25,33})\b')),
     ('ZEC', re.compile(r'\b([tz][13][a-km-zA-HJ-NP-Z1-9]{33})\b')),
     ('ETH', re.compile(r'\b((0x)?[0-9a-fA-F]{40})\b')),
@@ -57,7 +57,7 @@ class RawData:
         currency quote.
         """
         header_row = [cell.text.strip() for cell in table.find_elements(By.XPATH, 'tbody/tr[1]/th')]
-        assert header_row == ['Order ID', 'Full name', 'Palestinian Authority ID No', 'Palestinian Authority Passport No', 'D.O.B (DD/MM/YYYY)', 'Virtual currency address / User ID', 'Currency']
+        assert header_row == ['Order ID', 'Full name', 'Palestinian Authority ID No', 'Palestinian Authority Passport No', 'D.O.B (DD/MM/YYYY)', 'Virtual currency address / User ID', '']
         data_rows = [['Order ID', 'Address', 'Currency']]  # This is the container of values
         column_count = len(header_row)
         order_id = ''
@@ -67,12 +67,12 @@ class RawData:
             if len(row) == column_count:
                 order_id = row[0].text.strip().replace('\n', ' ').replace('  ', ' ')
             for column_index in range(1 if len(row) == column_count else 0, len(row)):
-                cell_value = row[column_index].text.strip()
+                cell_value = row[column_index].text
                 for currency, address_format in REGEX:
-                    match = address_format.fullmatch(cell_value)
-                    if match:
+                    for match in address_format.finditer(cell_value):
+                        if currency == 'LTC' and data_rows[-1][2] == 'BTC' and data_rows[-1][1] == match.group(1):
+                            continue  # We cannot have a LTC address equal previous BTC address; it is a false positive
                         data_rows.append([order_id, match.group(1), currency])
-                        break
         wd.quit()
         # Write data rows to CSV file
         with open(self.fn, 'w', encoding='utf-8', newline='') as csvfile:
