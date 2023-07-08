@@ -67,12 +67,12 @@ class RawData:
             if len(row) == column_count:
                 order_id = row[0].text.strip().replace('\n', ' ').replace('  ', ' ')
             for column_index in range(1 if len(row) == column_count else 0, len(row)):
-                cell_value = row[column_index].text.strip()
+                cell_value = row[column_index].text
                 for currency, address_format in REGEX:
-                    match = address_format.fullmatch(cell_value)
-                    if match:
+                    for match in address_format.finditer(cell_value):
+                        if currency == 'LTC' and data_rows[-1][2] == 'BTC' and data_rows[-1][1] == match.group(1):
+                            continue  # We cannot have a LTC address equal previous BTC address; it is a false positive
                         data_rows.append([order_id, match.group(1), currency])
-                        break
         wd.quit()
         # Write data rows to CSV file
         with open(self.fn, 'w', encoding='utf-8', newline='') as csvfile:
