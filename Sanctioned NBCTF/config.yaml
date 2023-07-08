@@ -1,6 +1,6 @@
 RAW_FILE_NAME:     "sanctioned_nbctf.csv"
 TAGPACK_FILE_NAME: "sanctionednbctf_tagpack.yaml"
-URL:               "https://nbctf.mod.gov.il/en/seizures/Pages/Blockchain1.aspx"
+URL:               "https://nbctf.mod.gov.il/en/Minister%20Sanctions/PropertyPerceptions/Pages/Blockchain1.aspx"
 SOURCE:            "https://nbctf.mod.gov.il/en/Pages/default.aspx"
 TITLE:             "Sanctioned NBCTF list"
 CREATOR:           "National Bureau for Counter Terror Financing of Israel"
